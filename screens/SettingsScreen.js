@@ -5,6 +5,7 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ChangeNameModal from './ChangeNameModal';
+import ChangePasswordModal from './ChangePasswordModal';
 import { database, ref, onValue, update } from '../firebaseConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -18,6 +19,7 @@ const { width, height } = Dimensions.get('window'); // Get screen dimensions
 export default function SettingsScreen() {
     const navigation = useNavigation();
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
     const [userData, setUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -116,7 +118,9 @@ export default function SettingsScreen() {
                 onPress={() => setIsModalVisible(true)}
             >
                 <View style={styles.imageAndName}>
-                    <Image source={avatarImage} style={styles.profileImage} />
+                    <View style={styles.profileImageContainer}>
+                        <Image source={avatarImage} style={styles.profileImage} />
+                    </View>
                     <Text style={styles.nameText}>{userData.name || 'User'}</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={24} color="grey" />
@@ -144,7 +148,10 @@ export default function SettingsScreen() {
                 <TouchableOpacity style={styles.privacyContainer} onPress={handleLogout}>
                     <Text style={styles.otherText}>Logout</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.privacyContainer}>
+                <TouchableOpacity 
+                    style={styles.privacyContainer} 
+                    onPress={() => setIsPasswordModalVisible(true)}
+                >
                     <Text style={styles.otherText}>Change Password</Text>
                     <Ionicons name="chevron-forward" size={20} color="grey" />
                 </TouchableOpacity>
@@ -167,15 +174,19 @@ export default function SettingsScreen() {
                 </TouchableOpacity>
             </View>
 
-            {/* Modal */}
+            {/* Modals */}
             <ChangeNameModal
                 visible={isModalVisible}
                 onClose={() => setIsModalVisible(false)}
                 onSave={handleSaveName}
             />
+            <ChangePasswordModal
+                visible={isPasswordModalVisible}
+                onClose={() => setIsPasswordModalVisible(false)}
+            />
         </View>
-    )
-};
+    );
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -208,7 +219,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginVertical: 10,
-        padding: 20,
+        paddingHorizontal: 20,
+        paddingVertical: 15,
         shadowColor: 'grey',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
@@ -220,12 +232,22 @@ const styles = StyleSheet.create({
         gap: 20,
         alignItems: 'center',
     },
-    profileImage: {
-        width: width * 0.15,
-        height: width * 0.15,
+    profileImageContainer: {
+        width: width * 0.175,
+        height: width * 0.175,
         borderRadius: 999,
         borderWidth: 3,
-        borderColor: '#A699B6',
+        borderColor: '#CCC1DA',
+        backgroundColor: '#EDE8F3',
+        overflow: 'hidden',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    profileImage: {
+        width: '110%',
+        height: '110%',
+        resizeMode: 'cover',
+        transform: [{ translateY: 15 }],
     },
     privacyTermsContainer: {
         width: '100%',
@@ -258,7 +280,7 @@ const styles = StyleSheet.create({
     },
     iconContainer: {
         position: 'absolute',
-        bottom: '4%',
+        bottom: width * 0.075,
         flexDirection: 'row',
         shadowColor: 'grey',
         shadowOffset: { width: 0, height: 2 },

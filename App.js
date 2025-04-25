@@ -11,7 +11,8 @@ import SettingsScreen from './screens/SettingsScreen';
 import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
 import TermsOfUseScreen from './screens/TermsOfUseScreen';
 import SetNameScreen from './screens/SetNameScreen';
-
+import ChangeNameModal from './screens/ChangeNameModal';
+import ChangePasswordModal from './screens/ChangePasswordModal';
 const Stack = createStackNavigator();
 
 const noAnimationConfig = {
@@ -48,6 +49,8 @@ export default function App() {
           <Stack.Screen name="PrivacyPolicyScreen" component={PrivacyPolicyScreen} />
           <Stack.Screen name="TermsOfUseScreen" component={TermsOfUseScreen} />
           <Stack.Screen name="SetNameScreen" component={SetNameScreen} />
+          <Stack.Screen name="ChangeNameModal" component={ChangeNameModal} />
+          <Stack.Screen name="ChangePasswordModal" component={ChangePasswordModal} />
         </Stack.Navigator>
       </NavigationContainer>
   );

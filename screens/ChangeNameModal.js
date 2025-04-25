@@ -122,7 +122,9 @@ export default function ChangeNameModal({ visible, onClose, onSave }) {
                     <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                         <Ionicons name="close" size={24} color="black" />
                     </TouchableOpacity>
-                    <Image source={avatarImage} style={styles.profileImage} />
+                    <View style={styles.profileImageContainer}>
+                        <Image source={avatarImage} style={styles.profileImage} />
+                    </View>
                     <View style={styles.modalHeader}>
                         <Text style={styles.modalTitle}>{userData.name || 'User'}</Text>
                     </View>
@@ -225,12 +227,24 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
     },
-    profileImage: {
+    profileImageContainer: {
         width: width * 0.3,
         height: width * 0.3,
         borderRadius: 999,
+        borderWidth: 3,
+        borderColor: '#9283A4',
+        backgroundColor: '#CEBFDF',
+        overflow: 'hidden',
+        justifyContent: 'center',
+        alignItems: 'center',
         alignSelf: 'center',
         marginBottom: 15
+    },
+    profileImage: {
+        width: '110%',
+        height: '110%',
+        resizeMode: 'cover',
+        transform: [{ translateY: 15 }],
     },
     closeButton: {
         alignSelf: 'flex-end',
