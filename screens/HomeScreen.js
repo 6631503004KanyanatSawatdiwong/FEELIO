@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import Octicons from '@expo/vector-icons/Octicons';
 import { database, ref, onValue } from '../firebaseConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
@@ -18,10 +19,10 @@ const avatars = [
 const templateImage = require('../assets/MoodBadges/template.png');
 const moodImages = {
     'Happy': require('../assets/MoodBadges/happyMood.png'),
-    'Excited': require('../assets/MoodBadges/ecstaticMood.png'),
-    'Loved': require('../assets/MoodBadges/stressfulMood.png'),
+    'Ecstatic': require('../assets/MoodBadges/ecstaticMood.png'),
+    'Stressed': require('../assets/MoodBadges/stressfulMood.png'),
     'Calm': require('../assets/MoodBadges/calmMood.png'),
-    'Tired': require('../assets/MoodBadges/exhaustedMood.png'),
+    'Exhausted': require('../assets/MoodBadges/exhaustedMood.png'),
     'Anxious': require('../assets/MoodBadges/anxiousMood.png'),
     'Sad': require('../assets/MoodBadges/sadMood.png'),
     'Angry': require('../assets/MoodBadges/angryMood.png'),
@@ -259,7 +260,7 @@ export default function HomeScreen({ navigation }) {
 
             <View style={styles.iconContainer}>
                 <TouchableOpacity style={styles.activeIcon}>
-                    <FontAwesome5 name="home" size={28} color="white" />
+                    <Octicons name="home" size={28} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity 
                     style={styles.icon} 
@@ -286,7 +287,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f8f7ea'
+        backgroundColor: '#f8f7ea',
     },
     calendarContainer: {
         flex: 1,
@@ -335,7 +336,7 @@ const styles = StyleSheet.create({
     dayText: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#000',
+        color: '#928E80',
         zIndex: 1
     },
     todayText: {

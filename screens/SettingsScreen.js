@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import Octicons from '@expo/vector-icons/Octicons';
 import ChangeNameModal from './ChangeNameModal';
 import ChangePasswordModal from './ChangePasswordModal';
 import { database, ref, onValue, update } from '../firebaseConfig';
@@ -123,7 +124,10 @@ export default function SettingsScreen() {
                     </View>
                     <Text style={styles.nameText}>{userData.name || 'User'}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={24} color="grey" />
+                <View style={styles.iconAndText}>
+                    <Text style={styles.subText}>Edit Profile</Text>
+                    <Ionicons name="chevron-forward" size={24} color="grey" />
+                </View>
             </TouchableOpacity>
 
             {/* Dark Mode Button */}
@@ -164,7 +168,7 @@ export default function SettingsScreen() {
             {/* Bottom Icons */}
             <View style={styles.iconContainer}>
                 <TouchableOpacity style={styles.icon} onPress={() => navigation.replace('HomeScreen')}>
-                    <FontAwesome5 name="home" size={28} color="black" />
+                    <Octicons name="home" size={28} color="black" />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.icon} onPress={() => navigation.replace('AddMoodScreen')}>
                     <FontAwesome name="plus" size={28} color="black" />
@@ -179,6 +183,8 @@ export default function SettingsScreen() {
                 visible={isModalVisible}
                 onClose={() => setIsModalVisible(false)}
                 onSave={handleSaveName}
+                currentName={userData?.name}
+                currentAvatarId={userData?.avatarId || '0'}
             />
             <ChangePasswordModal
                 visible={isPasswordModalVisible}
@@ -296,6 +302,16 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    iconAndText: {
+        flexDirection: 'row',
+        gap: 10,
+        alignItems: 'center',
+    },
+    subText: {
+        fontSize: 14,
+        color: 'grey',
+        fontWeight: '400'
     },
     activeIcon: {
         width: width * 0.17,
