@@ -25,7 +25,7 @@ export default function App() {
     <NavigationContainer>
         {/* <StatusBar barStyle="light-content" backgroundColor="transparent" translucent /> */}
         <Stack.Navigator 
-          initialRouteName="HomeScreen" 
+          initialRouteName="AuthScreen" 
           screenOptions={{ 
             headerShown: false,
             gestureEnabled: false,
