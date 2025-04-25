@@ -1,19 +1,114 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, Dimensions, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, Dimensions, Image, Alert, ActivityIndicator } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-
+import { database, ref, update, onValue } from '../firebaseConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 const { width, height } = Dimensions.get('window');
+
+const avatars = [
+    { id: '1', image: require('../assets/ProfileImages/yellowMan.png') },
+    { id: '2', image: require('../assets/ProfileImages/pinkMan.png') },
+];
 
 export default function ChangeNameModal({ visible, onClose, onSave }) {
     const [newName, setNewName] = useState('');
+    const [userData, setUserData] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const navigation = useNavigation();
 
-    const handleSave = () => {
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const userId = await AsyncStorage.getItem('userId');
+                if (!userId) {
+                    navigation.navigate('SetNameScreen');
+                    return;
+                }
+
+                const userRef = ref(database, `users/${userId}`);
+                onValue(userRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        setUserData(data);
+                    }
+                    setIsLoading(false);
+                });
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                Alert.alert('Error', 'Failed to load user data');
+                setIsLoading(false);
+            }
+        };
+        fetchUserData();
+    }, [navigation]);
+
+    const handleSave = async () => {
         if (newName.trim()) {
-            onSave(newName);
-            setNewName('');
-            onClose();
+            try {
+                const userId = await AsyncStorage.getItem('userId');
+                if (!userId) {
+                    Alert.alert('Error', 'User not found');
+                    return;
+                }
+
+                const userRef = ref(database, `users/${userId}`);
+                await update(userRef, {
+                    name: newName.trim()
+                });
+                
+                onSave(newName.trim());
+                setNewName('');
+                onClose();
+            } catch (error) {
+                console.error("Error updating name:", error);
+            }
         }
     };
+
+    if (!visible) return null;
+
+    if (isLoading) {
+        return (
+            <Modal
+                visible={visible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={onClose}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <ActivityIndicator size="large" color="#A081C3" />
+                    </View>
+                </View>
+            </Modal>
+        );
+    }
+
+    if (!userData) {
+        return (
+            <Modal
+                visible={visible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={onClose}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.errorText}>Failed to load user data</Text>
+                        <TouchableOpacity 
+                            style={[styles.button, styles.cancelButton]} 
+                            onPress={onClose}
+                        >
+                            <Text style={styles.cancelButtonText}>Close</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+        );
+    }
+
+    const avatarImage = avatars[userData.avatarId || 0].image;
 
     return (
         <Modal
@@ -27,11 +122,11 @@ export default function ChangeNameModal({ visible, onClose, onSave }) {
                     <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                         <Ionicons name="close" size={24} color="black" />
                     </TouchableOpacity>
-                    <Image source={require('../assets/ProfileImages/profileImage.jpg')} style={styles.profileImage} />
+                    <Image source={avatarImage} style={styles.profileImage} />
                     <View style={styles.modalHeader}>
-                        <Text style={styles.modalTitle}>username</Text>
+                        <Text style={styles.modalTitle}>{userData.name || 'User'}</Text>
                     </View>
-                    <Text style={styles.emailTitle}>user@gmail.com</Text>
+                    <Text style={styles.emailTitle}>{userData.email}</Text>
 
                     <TextInput
                         style={styles.input}
@@ -139,5 +234,11 @@ const styles = StyleSheet.create({
     },
     closeButton: {
         alignSelf: 'flex-end',
+    },
+    errorText: {
+        fontSize: 16,
+        color: 'red',
+        textAlign: 'center',
+        marginBottom: 20
     }
 });

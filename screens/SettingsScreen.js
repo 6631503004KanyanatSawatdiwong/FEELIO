@@ -1,21 +1,110 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ChangeNameModal from './ChangeNameModal';
+import { database, ref, onValue, update } from '../firebaseConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const avatars = [
+    { id: '1', image: require('../assets/ProfileImages/yellowMan.png') },
+    { id: '2', image: require('../assets/ProfileImages/pinkMan.png') },
+];
 
 const { width, height } = Dimensions.get('window'); // Get screen dimensions
 
 export default function SettingsScreen() {
     const navigation = useNavigation();
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [username, setUsername] = useState('username');
+    const [userData, setUserData] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const handleSaveName = (newName) => {
-        setUsername(newName);
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const userId = await AsyncStorage.getItem('userId');
+                if (!userId) {
+                    navigation.navigate('SetNameScreen');
+                    return;
+                }
+
+                const userRef = ref(database, `users/${userId}`);
+                onValue(userRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        setUserData(data);
+                    }
+                    setIsLoading(false);
+                });
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                Alert.alert('Error', 'Failed to load user data');
+                setIsLoading(false);
+            }
+        };
+        fetchUserData();
+    }, [navigation]);
+
+    const handleSaveName = async (newName) => {
+        try {
+            const userId = await AsyncStorage.getItem('userId');
+            if (!userId) {
+                Alert.alert('Error', 'User not found');
+                return;
+            }
+
+            const userRef = ref(database, `users/${userId}`);
+            await update(userRef, {
+                name: newName
+            });
+            
+            setUserData(prev => ({ ...prev, name: newName }));
+        } catch (error) {
+            console.error("Error updating name:", error);
+            Alert.alert('Error', 'Failed to update name. Please try again.');
+        }
     };
+
+    const handleLogout = async () => {
+        Alert.alert(
+            "Logout",
+            "Are you sure you want to logout?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Logout",
+                    style: "destructive",
+                    onPress: async () => {
+                        await AsyncStorage.clear();
+                        navigation.navigate('AuthScreen');
+                    }
+                }
+            ]
+        );
+    };
+
+    if (isLoading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#A081C3" />
+            </View>
+        );
+    }
+
+    if (!userData) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.errorText}>Failed to load user data</Text>
+            </View>
+        );
+    }
+
+    const avatarImage = avatars[userData.avatarId || 0].image;
 
     return (
         <View style={styles.container}>
@@ -27,8 +116,8 @@ export default function SettingsScreen() {
                 onPress={() => setIsModalVisible(true)}
             >
                 <View style={styles.imageAndName}>
-                    <Image source={require('../assets/ProfileImages/profileImage.jpg')} style={styles.profileImage} />
-                    <Text style={styles.nameText}>{username}</Text>
+                    <Image source={avatarImage} style={styles.profileImage} />
+                    <Text style={styles.nameText}>{userData.name || 'User'}</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={24} color="grey" />
             </TouchableOpacity>
@@ -52,6 +141,9 @@ export default function SettingsScreen() {
 
             {/* Change password & Delete account */}
             <View style={styles.privacyTermsContainer}>
+                <TouchableOpacity style={styles.privacyContainer} onPress={handleLogout}>
+                    <Text style={styles.otherText}>Logout</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.privacyContainer}>
                     <Text style={styles.otherText}>Change Password</Text>
                     <Ionicons name="chevron-forward" size={20} color="grey" />
@@ -166,7 +258,7 @@ const styles = StyleSheet.create({
     },
     iconContainer: {
         position: 'absolute',
-        bottom: '5%',
+        bottom: '4%',
         flexDirection: 'row',
         shadowColor: 'grey',
         shadowOffset: { width: 0, height: 2 },
@@ -179,7 +271,7 @@ const styles = StyleSheet.create({
         height: width * 0.17,
         padding: 15,
         backgroundColor: 'white',
-        borderRadius: 15,
+        borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -188,7 +280,7 @@ const styles = StyleSheet.create({
         height: width * 0.17,
         padding: 15,
         backgroundColor: 'black',
-        borderRadius: 15,
+        borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -201,5 +293,16 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '600',
         color: 'red'
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f8f7ea'
+    },
+    errorText: {
+        fontSize: 16,
+        color: 'red',
+        textAlign: 'center'
     }
 });

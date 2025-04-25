@@ -10,6 +10,7 @@ import AddMoodScreen from './screens/AddMoodScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
 import TermsOfUseScreen from './screens/TermsOfUseScreen';
+import SetNameScreen from './screens/SetNameScreen';
 
 const Stack = createStackNavigator();
 
@@ -46,6 +47,7 @@ export default function App() {
           <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
           <Stack.Screen name="PrivacyPolicyScreen" component={PrivacyPolicyScreen} />
           <Stack.Screen name="TermsOfUseScreen" component={TermsOfUseScreen} />
+          <Stack.Screen name="SetNameScreen" component={SetNameScreen} />
         </Stack.Navigator>
       </NavigationContainer>
   );

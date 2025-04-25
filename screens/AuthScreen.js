@@ -36,13 +36,13 @@ const AuthScreen = ({ navigation }) => {
         const userRef = ref(database, 'users/' + userCredential.user.uid);
         onValue(userRef, (snapshot) => {
           const userData = snapshot.val();
-          if (userData && userData.character !== undefined) {
+          if (userData && userData.avatarId !== undefined && userData.name !== undefined) {
             // User has completed character setup, go to HomeScreen
             AsyncStorage.setItem('userId', userCredential.user.uid);
             navigation.navigate("HomeScreen");
           } else {
             // User hasn't completed character setup, go to CharacterScreen
-            navigation.navigate("HomeScreen");
+            navigation.navigate("SetNameScreen");
           }
         }, {
           onlyOnce: true // Only check once
@@ -59,9 +59,7 @@ const AuthScreen = ({ navigation }) => {
           email: user.email,
           createdAt: new Date().toISOString(),
         });
-
-        Alert.alert("Success", "Account created successfully");
-        navigation.navigate("HomeScreen");
+        navigation.navigate("SetNameScreen");
       }
     } catch (error) {
       console.error("Auth Error:", error);

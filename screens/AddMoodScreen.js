@@ -1,20 +1,57 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { database, ref, onValue } from '../firebaseConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window'); // Get screen dimensions
 
+const avatars = [
+    { id: '1', image: require('../assets/ProfileImages/yellowMan.png') },
+    { id: '2', image: require('../assets/ProfileImages/pinkMan.png') },
+];
+
 export default function HomeScreen() {
     const navigation = useNavigation();
+    const [userData, setUserData] = useState(null);
 
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const userId = await AsyncStorage.getItem('userId');
+                if (!userId) {
+                    navigation.navigate('SetNameScreen');
+                    return;
+                }
+
+                const userRef = ref(database, `users/${userId}`);
+                onValue(userRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        setUserData(data);
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                navigation.navigate('SetNameScreen');
+            }
+        };
+        fetchUserData();
+    }, [navigation]);
+
+    if (!userData) {
+        return null; // Or a loading screen
+    }
+
+    const avatarImage = avatars[userData.avatarId].image;
     return (
         <View style={styles.container}>
             <TouchableOpacity style={styles.profileButton} onPress={() => navigation.replace('ProfileScreen')}>
-                <Image source={require('../assets/ProfileImages/profileImage.jpg')} style={styles.profileImage} />
-                <Text style={styles.nameText}>username</Text>
+                <Image source={avatarImage} style={styles.profileImage} />
+                <Text style={styles.nameText}>{userData.name}</Text>
             </TouchableOpacity>
 
             <Text>Add Mood Screen</Text>
@@ -75,7 +112,7 @@ const styles = StyleSheet.create({
     },
     iconContainer: {
         position: 'absolute',
-        bottom: '5%',
+        bottom: '4%',
         flexDirection: 'row',
         shadowColor: 'grey',
         shadowOffset: { width: 0, height: 2 },
@@ -88,7 +125,7 @@ const styles = StyleSheet.create({
         height: width * 0.17,
         padding: 15,
         backgroundColor: 'white',
-        borderRadius: 15,
+        borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -97,7 +134,7 @@ const styles = StyleSheet.create({
         height: width * 0.17,
         padding: 15,
         backgroundColor: 'black',
-        borderRadius: 15,
+        borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
     }
