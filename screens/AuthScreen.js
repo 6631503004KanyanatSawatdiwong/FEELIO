@@ -19,6 +19,16 @@ const AuthScreen = ({ navigation }) => {
 
   const handleAuth = async () => {
     try {
+      // Check for empty fields
+      if (!email.trim()) {
+        Alert.alert("Warning", "Please enter your email address");
+        return;
+      }
+      if (!password.trim()) {
+        Alert.alert("Warning", "Please enter your password");
+        return;
+      }
+
       if (!isLogin && !isChecked) {
         setTermsError(true);
         return;
@@ -29,24 +39,36 @@ const AuthScreen = ({ navigation }) => {
 
       if (isLogin) {
         // Login logic
-        const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
-        console.log("UserCredential", userCredential);
-        
-        // Check if user has completed character setup
-        const userRef = ref(database, 'users/' + userCredential.user.uid);
-        onValue(userRef, (snapshot) => {
-          const userData = snapshot.val();
-          if (userData && userData.avatarId !== undefined && userData.name !== undefined) {
-            // User has completed character setup, go to HomeScreen
-            AsyncStorage.setItem('userId', userCredential.user.uid);
-            navigation.navigate("HomeScreen");
+        try {
+          const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
+          
+          // Check if user has completed character setup
+          const userRef = ref(database, 'users/' + userCredential.user.uid);
+          onValue(userRef, (snapshot) => {
+            const userData = snapshot.val();
+            if (userData && userData.avatarId !== undefined && userData.name !== undefined) {
+              // User has completed character setup, go to HomeScreen
+              AsyncStorage.setItem('userId', userCredential.user.uid);
+              navigation.navigate("HomeScreen");
+            } else {
+              // User hasn't completed character setup, go to CharacterScreen
+              navigation.navigate("SetNameScreen");
+            }
+          }, {
+            onlyOnce: true // Only check once
+          });
+        } catch (error) {
+          if (error.code === 'auth/invalid-credential' || 
+              error.code === 'auth/invalid-email' || 
+              error.code === 'auth/user-not-found' ||
+              error.code === 'auth/wrong-password') {
+            Alert.alert("Login Failed", "Incorrect email or password");
           } else {
-            // User hasn't completed character setup, go to CharacterScreen
-            navigation.navigate("SetNameScreen");
+            console.error("Login Error:", error);
+            Alert.alert("Login Error", "An error occurred during login. Please try again.");
           }
-        }, {
-          onlyOnce: true // Only check once
-        });
+          return;
+        }
       } else {
         // Register logic
         const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
@@ -88,78 +110,90 @@ const AuthScreen = ({ navigation }) => {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 0}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
     >
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.title}>{isLogin ? "Login" : "Register"}</Text>
+        <View style={styles.contentWrapper}>
+          <Text style={styles.title}>{isLogin ? "Login" : "Register"}</Text>
 
-        <View style={styles.inputContainer}>
-          <TextInput
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            style={styles.input}
-          />
+          <Image source={require('../assets/FEELIO-splash.png')} style={styles.splashImage} />
 
-          <TextInput
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            style={styles.input}
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              style={styles.input}
+            />
 
-          {!isLogin && (
-            <View style={styles.termsContainer}>
-              <TouchableOpacity 
-                style={[styles.checkbox, isChecked && styles.checkedBox]} 
-                onPress={() => {
-                  setIsChecked(!isChecked);
-                  setTermsError(false);
-                }}
-              >
-                {isChecked && <FontAwesomeIcon icon={faCheck} size={12} color="white" />}
-              </TouchableOpacity>
-              <Text style={styles.termsText}>
-                By signing up, you agree to our{" "}
-                <Text 
-                  style={styles.termsLink}
-                  onPress={() => setShowTermsModal(true)}
+            <TextInput
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              style={styles.input}
+            />
+
+            {isLogin ? (
+              <View style={styles.termsContainer}>
+                <View style={{ flex: 1 }} />
+                <TouchableOpacity onPress={handleForgotPassword}>
+                  <Text style={styles.forgotPassword}>Forgot Password?</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.termsContainer}>
+                <TouchableOpacity 
+                  style={[styles.checkbox, isChecked && styles.checkedBox]} 
+                  onPress={() => {
+                    setIsChecked(!isChecked);
+                    setTermsError(false);
+                  }}
                 >
-                  Terms of Service and Privacy Policy
+                  {isChecked && <FontAwesomeIcon icon={faCheck} size={12} color="white" />}
+                </TouchableOpacity>
+                <Text style={styles.termsText}>
+                  By signing up, you agree to our{" "}
+                  <Text 
+                    style={styles.termsLink}
+                    onPress={() => setShowTermsModal(true)}
+                  >
+                    Terms of Service and Privacy Policy
+                  </Text>
                 </Text>
+              </View>
+            )}
+
+            {!isLogin && termsError && (
+              <Text style={styles.errorText}>
+                Please accept the Terms of Service and Privacy Policy
               </Text>
-            </View>
-          )}
-          {!isLogin && termsError && (
-            <Text style={styles.errorText}>
-              Please accept the Terms of Service and Privacy Policy
-            </Text>
-          )}
+            )}
 
-          <TouchableOpacity style={styles.button} onPress={handleAuth} disabled={loading}>
-            <Text style={styles.buttonText}>
-              {loading ? "Please wait..." : isLogin ? "Login" : "Register"}
-            </Text>
-          </TouchableOpacity>
-
-          {isLogin && (
-            <TouchableOpacity onPress={handleForgotPassword}>
-              <Text style={styles.forgotPassword}>Forgot Password?</Text>
+            <TouchableOpacity style={styles.button} onPress={handleAuth} disabled={loading}>
+              <Text style={styles.buttonText}>
+                {loading ? "Please wait..." : isLogin ? "Login" : "Register"}
+              </Text>
             </TouchableOpacity>
-          )}
-        </View>
+          </View>
 
-        <Text onPress={() => setIsLogin(!isLogin)} style={styles.switchText}>
-          {isLogin
-            ? "Don't have an account? Register"
-            : "Already have an account? Login"}
-        </Text>
+          <View style={styles.switchTextContainer}>
+            <Text style={styles.switchText}>
+              {isLogin ? "Don't have an account? " : "Already have an account? "}
+            </Text>
+            <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
+              <Text style={styles.switchLink}>
+                {isLogin ? "Register" : "Login"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </ScrollView>
 
       <Modal
@@ -217,91 +251,77 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#f8f7ea",
   },
   scrollContent: {
     flexGrow: 1,
+    minHeight: '100%',
+  },
+  contentWrapper: {
+    flex: 1,
     padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 35,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: 60,
     marginBottom: 20,
+    color: "#393939",
   },
   inputContainer: {
-    marginTop: 70,
-  },
-  astronaut: {
-    width: 150,
-    height: 150,
-    alignSelf: "center",
-    marginTop: 30,
-  },
-  smallstar: {
-    width: 20,
-    height: 20,
-    position: "absolute",
-    top: 200,
-    left: 90,
-  },
-  bigstar: {
-    width: 50,
-    height: 50,
-    position: "absolute",
-    top: 290,
-    right: 75,
-  },
-  alienleft: {
-    width: 60,
-    height: 60,
-    position: "absolute",
-    top: 300,
-    left: 100,
-  },
-  alienright: {
-    width: 60,
-    height: 60,
-    position: "absolute",
-    top: 150,
-    right: 120,
+    width: '100%',
+    alignItems: 'center',
+    marginVertical: 20,
   },
   input: {
+    width: '100%',
     borderWidth: 1,
     marginBottom: 15,
-    padding: 12,
+    padding: 15,
     fontSize: 16,
     borderColor: "#ccc",
     borderRadius: 8,
   },
   button: {
-    backgroundColor: "#151B54",
-    paddingVertical: 14,
-    marginBottom: 20,
+    backgroundColor: "#A081C3",
+    paddingVertical: 10,
+    // paddingHorizontal: 25,
+    marginBottom: 10,
+    marginTop: 20,
     borderRadius: 8,
     alignItems: "center",
+    width: '100%',
   },
   buttonText: {
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
   },
-  switchText: {
-    textAlign: 'center',
-    color: 'blue',
-    fontSize: 16,
-    textDecorationLine: 'underline',
+  switchTextContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 15,
   },
+  switchText: {
+    textAlign: 'center',
+    color: '#393939',
+    fontSize: 16,
+  },
+  switchLink: {
+    color: '#A081C3',
+    fontSize: 16,
+    textDecorationLine: 'underline',
+    fontWeight: '600',
+  },
   forgotPassword: {
-    color: "#151B54",
-    textAlign: "right",
+    color: "#929292",
     fontSize: 14,
-    textDecorationLine: "underline",
-    marginBottom: 10,
   },
   termsContainer: {
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 15,
@@ -310,38 +330,47 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderWidth: 1,
-    borderColor: '#151B54',
+    borderColor: '#A081C3',
     borderRadius: 10,
     marginRight: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
   checkedBox: {
-    backgroundColor: '#151B54',
+    backgroundColor: '#A081C3',
   },
   termsText: {
     flex: 1,
     fontSize: 12,
-    color: 'black',
+    color: '#575757',
   },
-  termsLink: {
-    color: '#151B54',
-    textDecorationLine: 'underline',
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    textAlign: 'center',
   },
   modalContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    justifyContent: 'flex-end',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    paddingHorizontal: 20,
   },
   modalContent: {
     backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 25,
-    paddingBottom: 30,
-    height: '80%',
+    borderRadius: 20,
+    padding: 20,
+    width: '100%',
+    maxHeight: '80%',
+  },
+  termsScrollView: {
+    marginTop: 10,
+  },
+  termsTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    textAlign: 'center',
   },
   closeButton: {
     alignSelf: 'flex-end',
@@ -351,31 +380,56 @@ const styles = StyleSheet.create({
     color: '#151B54',
     fontSize: 16,
   },
-  termsScrollView: {
-    marginTop: 10,
-  },
-  termsTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
   termsBody: {
     fontSize: 14,
-    lineHeight: 24,
+    lineHeight: 20,
   },
   termsTopic: {
     fontWeight: 'bold',
-    fontSize: 16,
-    marginTop: 10,
-    marginBottom: 5,
   },
-  errorText: {
-    color: 'red',
-    fontSize: 12,
-    marginBottom: 15,
-    textAlign: 'center',
+  termsLink: {
+    color: '#393939',
+    textDecorationLine: 'underline',
   },
+  astronaut: {
+    width: 150,
+    height: 150,
+    alignSelf: "center",
+    marginBottom: 30,
+  },
+  smallstar: {
+    width: 20,
+    height: 20,
+    position: "absolute",
+    top: '25%',
+    left: '25%',
+  },
+  bigstar: {
+    width: 50,
+    height: 50,
+    position: "absolute",
+    top: '35%',
+    right: '20%',
+  },
+  alienleft: {
+    width: 60,
+    height: 60,
+    position: "absolute",
+    top: '40%',
+    left: '25%',
+  },
+  alienright: {
+    width: 60,
+    height: 60,
+    position: "absolute",
+    top: '20%',
+    right: '30%',
+  },
+  splashImage: {
+    width: width*0.5,
+    height: width*0.5,
+    marginVertical: 10,
+  }
 });
 
 export default AuthScreen; 

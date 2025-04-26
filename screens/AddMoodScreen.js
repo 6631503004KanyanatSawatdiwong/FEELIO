@@ -203,7 +203,7 @@ export default function AddMoodScreen({ navigation, route }) {
                     style={styles.icon} 
                     onPress={() => navigation.replace('HomeScreen')}
                 >
-                    <Octicons name="home" size={28} color="black" />
+                    <Octicons name="home" size={28} color="#A081C3" />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.activeIcon}>
                     <FontAwesome name="plus" size={28} color="white" />
@@ -212,7 +212,7 @@ export default function AddMoodScreen({ navigation, route }) {
                     style={styles.icon} 
                     onPress={() => navigation.replace('SettingsScreen')}
                 >
-                    <Ionicons name="settings" size={28} color="black" />
+                    <Ionicons name="settings" size={28} color="#A081C3" />
                 </TouchableOpacity>
             </View>
         </View>
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
         width: width * 0.17,
         height: width * 0.17,
         padding: 15,
-        backgroundColor: 'black',
+        backgroundColor: '#A081C3',
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
