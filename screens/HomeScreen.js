@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, FlatList, Alert, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -8,6 +8,7 @@ import Octicons from '@expo/vector-icons/Octicons';
 import { database, ref, onValue } from '../firebaseConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
+import { useTheme, lightTheme, darkTheme } from '../context/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -29,6 +30,9 @@ const moodImages = {
 };
 
 export default function HomeScreen({ navigation }) {
+    const { isDarkMode } = useTheme();
+    const theme = isDarkMode ? darkTheme : lightTheme;
+    const styles = createStyles(theme);
     const [userData, setUserData] = useState(null);
     const [currentDate, setCurrentDate] = useState(moment());
     const [selectedYear, setSelectedYear] = useState(moment().year());
@@ -206,9 +210,20 @@ export default function HomeScreen({ navigation }) {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
+            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
             <TouchableOpacity 
-                style={styles.profileButton} 
+                style={[
+                    styles.profileButton,
+                    { backgroundColor: theme.navbar },
+                    isDarkMode && {
+                        shadowColor: undefined,
+                        shadowOffset: undefined,
+                        shadowOpacity: 0,
+                        shadowRadius: 0,
+                        elevation: 0,
+                    }
+                ]}
                 onPress={() => navigation.navigate('ProfileScreen')}
             >
                 <View style={styles.profileImageContainer}>
@@ -226,7 +241,7 @@ export default function HomeScreen({ navigation }) {
                         onPress={handlePreviousYear}
                         style={styles.yearButton}
                     >
-                        <Ionicons name="chevron-back" size={24} color="black" />
+                        <Ionicons name="chevron-back" size={24} color={theme.text} />
                     </TouchableOpacity>
                     <Text style={styles.yearText}>{selectedYear}</Text>
                     <TouchableOpacity 
@@ -237,7 +252,11 @@ export default function HomeScreen({ navigation }) {
                         ]}
                         disabled={selectedYear === moment().year()}
                     >
-                        <Ionicons name="chevron-forward" size={24} color={selectedYear === moment().year() ? "#ccc" : "black"} />
+                        <Ionicons 
+                            name="chevron-forward" 
+                            size={24} 
+                            color={selectedYear === moment().year() ? theme.secondary : theme.text} 
+                        />
                     </TouchableOpacity>
                 </View>
 
@@ -257,112 +276,89 @@ export default function HomeScreen({ navigation }) {
                     })}
                 />
             </View>
-
-            <View style={styles.iconContainer}>
-                <TouchableOpacity style={styles.activeIcon}>
+            
+            {/* bottom navigation bar */}
+            <View style={[
+                styles.iconContainer,
+                isDarkMode && {
+                    shadowColor: undefined,
+                    shadowOffset: undefined,
+                    shadowOpacity: 0,
+                    shadowRadius: 0,
+                    elevation: 0,
+                }
+            ]}>
+                <TouchableOpacity 
+                    style={[
+                        styles.activeIcon, 
+                        { backgroundColor: theme.primary },
+                        isDarkMode && {
+                            shadowColor: undefined,
+                            shadowOffset: undefined,
+                            shadowOpacity: 0,
+                            shadowRadius: 0,
+                            elevation: 0,
+                        }
+                    ]} 
+                    onPress={() => navigation.replace('HomeScreen')}
+                >
                     <Octicons name="home" size={28} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity 
-                    style={styles.icon} 
-                    onPress={() => navigation.navigate('AddMoodScreen', {
-                        date: moment().format('YYYY-MM-DD'),
-                        isToday: true
-                    })}
+                    style={[
+                        styles.icon, 
+                        { backgroundColor: theme.navbar },
+                        isDarkMode && {
+                            shadowColor: undefined,
+                            shadowOffset: undefined,
+                            shadowOpacity: 0,
+                            shadowRadius: 0,
+                            elevation: 0,
+                        }
+                    ]}
+                onPress={() => navigation.navigate('AddMoodScreen')}
                 >
-                    <FontAwesome name="plus" size={28} color="#A081C3" />
+                    <FontAwesome name="plus" size={28} color={theme.primary} />
                 </TouchableOpacity>
                 <TouchableOpacity 
-                    style={styles.icon} 
+                    style={[
+                        styles.icon, 
+                        { backgroundColor: theme.navbar },
+                        isDarkMode && {
+                            shadowColor: undefined,
+                            shadowOffset: undefined,
+                            shadowOpacity: 0,
+                            shadowRadius: 0,
+                            elevation: 0,
+                        }
+                    ]} 
                     onPress={() => navigation.replace('SettingsScreen')}
                 >
-                    <Ionicons name="settings" size={28} color="#A081C3" />
+                    <Ionicons name="settings" size={28} color={theme.primary} />
                 </TouchableOpacity>
             </View>
         </View>
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f8f7ea',
-    },
-    calendarContainer: {
-        flex: 1,
-        width: '100%',
-        top: height * 0.165,
-    },
-    monthContainer: {
-        width: width,
-        paddingHorizontal: 20,
-        // paddingTop: 5,
-    },
-    monthHeader: {
-        alignItems: 'center',
-        marginTop: 0,
-        marginBottom: 15,
-    },
-    monthText: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#000',
-    },
-    daysGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        gap: 8,
-    },
-    dayContainer: {
-        width: width * 0.15,
-        height: width * 0.15,
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
-        alignSelf: 'center',
-    },
-    templateImage: {
-        width: '100%',
-        height: '100%',
-        position: 'absolute',
-        resizeMode: 'contain'
-    },
-    todayImage: {
-        tintColor: '#A081C3'
-    },
-    dayText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#928E80',
-        zIndex: 1
-    },
-    todayText: {
-        color: 'black'
-    },
-    disabledDay: {
-        opacity: 0.5
-    },
-    dayPlaceholder: {
-        width: width * 0.15,
-        height: width * 0.15,
-        margin: 5,
+        backgroundColor: theme.background,
     },
     profileButton: {
         position: 'absolute',
         top: width * 0.175,
         left: width * 0.045,
-        borderRadius: 20,
+        borderRadius: 15,
         borderWidth: 0.5,
-        borderColor: '#e1e1e1',
-        backgroundColor: 'white',
+        borderColor: theme.border,
+        backgroundColor: theme.card,
         justifyContent: 'flex-start',
         alignItems: 'center',
         flexDirection: 'row',
         gap: 15,
-        paddingVertical: 10,
+        paddingVertical: 5,
         paddingHorizontal: 15,
         shadowColor: 'grey',
         shadowOffset: { width: 0, height: 2 },
@@ -372,8 +368,8 @@ const styles = StyleSheet.create({
         zIndex: 2,
     },
     profileImageContainer: {
-        width: width * 0.13,
-        height: width * 0.13,
+        width: width * 0.1,
+        height: width * 0.1,
         borderRadius: 999,
         borderWidth: 3,
         borderColor: '#CCC1DA',
@@ -391,35 +387,12 @@ const styles = StyleSheet.create({
     nameText: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#000'
+        color: 'black'
     },
-    iconContainer: {
-        position: 'absolute',
-        bottom: width * 0.075,
-        flexDirection: 'row',
-        shadowColor: 'grey',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-        elevation: 5,
-    },
-    icon: {
-        width: width * 0.17,
-        height: width * 0.17,
-        padding: 15,
-        backgroundColor: 'white',
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    activeIcon: {
-        width: width * 0.17,
-        height: width * 0.17,
-        padding: 15,
-        backgroundColor: '#A081C3',
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
+    calendarContainer: {
+        flex: 1,
+        width: '100%',
+        top: height * 0.165,
     },
     yearNavigation: {
         flexDirection: 'row',
@@ -437,5 +410,90 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         marginHorizontal: 20,
+        color: theme.text,
+    },
+    monthContainer: {
+        width: width,
+        paddingHorizontal: 20,
+    },
+    monthHeader: {
+        alignItems: 'center',
+        marginTop: 0,
+        marginBottom: 25,
+    },
+    monthText: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: theme.text,
+    },
+    daysGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        gap: 8,
+    },
+    dayContainer: {
+        width: width * 0.15,
+        height: width * 0.15,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'relative',
+        alignSelf: 'center',
+    },
+    dayPlaceholder: {
+        width: width * 0.15,
+        height: width * 0.15,
+        margin: 5,
+    },
+    templateImage: {
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        resizeMode: 'contain'
+    },
+    todayImage: {
+        tintColor: theme.primary
+    },
+    dayText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: theme.secondary,
+        zIndex: 1
+    },
+    todayText: {
+        color: theme.text
+    },
+    disabledDay: {
+        opacity: 0.5
+    },
+    iconContainer: {
+        position: 'absolute',
+        bottom: width * 0.075,
+        alignSelf: 'center',
+        flexDirection: 'row',
+        shadowColor: 'grey',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 5,
+    },
+    icon: {
+        width: width * 0.15,
+        height: width * 0.15,
+        padding: 15,
+        backgroundColor: theme.card,
+        borderRadius: 15,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    activeIcon: {
+        width: width * 0.15,
+        height: width * 0.15,
+        padding: 15,
+        backgroundColor: theme.primary,
+        borderRadius: 15,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });

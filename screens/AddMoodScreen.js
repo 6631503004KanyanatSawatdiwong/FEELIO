@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { 
     View, Text, StyleSheet, TouchableOpacity, Image, 
-    Dimensions, Alert, Animated
+    Dimensions, Alert, Animated, StatusBar, TextInput 
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -11,6 +11,7 @@ import Octicons from '@expo/vector-icons/Octicons';
 import { database, ref, set, get, onValue } from '../firebaseConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
+import { useTheme, lightTheme, darkTheme } from '../context/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -43,17 +44,18 @@ const emotions = [
     { id: 9, name: 'Angry', image: require('../assets/MoodBadges/angryMood.png') },
 ];
 
-export default function AddMoodScreen({ navigation, route }) {
+export default function AddMoodScreen() {
+    const navigation = useNavigation();
+    const route = useRoute();
+    const { isDarkMode } = useTheme();
+    const theme = isDarkMode ? darkTheme : lightTheme;
+    const styles = createStyles(theme);
     const [selectedEmotion, setSelectedEmotion] = useState(null);
     const [existingMood, setExistingMood] = useState(null);
+    const [userData, setUserData] = useState(null);
     const { date = moment().format('YYYY-MM-DD'), isToday = true } = route?.params || {};
     const dateObj = moment(date);
-    const [userData, setUserData] = useState(null);
     const [moodsData, setMoodsData] = useState({});
-
-    useEffect(() => {
-        checkExistingMood();
-    }, []);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -87,6 +89,10 @@ export default function AddMoodScreen({ navigation, route }) {
         };
         fetchUserData();
     }, [navigation]);
+
+    useEffect(() => {
+        checkExistingMood();
+    }, []);
 
     const checkExistingMood = async () => {
         try {
@@ -137,9 +143,20 @@ export default function AddMoodScreen({ navigation, route }) {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
+            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
             <TouchableOpacity 
-                style={styles.profileButton} 
+                style={[
+                    styles.profileButton,
+                    { backgroundColor: theme.navbar },
+                    isDarkMode && {
+                        shadowColor: undefined,
+                        shadowOffset: undefined,
+                        shadowOpacity: 0,
+                        shadowRadius: 0,
+                        elevation: 0,
+                    }
+                ]}
                 onPress={() => navigation.navigate('ProfileScreen')}
             >
                 <View style={styles.profileImageContainer}>
@@ -151,12 +168,12 @@ export default function AddMoodScreen({ navigation, route }) {
                 <Text style={styles.nameText}>{userData?.name || 'User'}</Text>
             </TouchableOpacity>
 
-            <Text style={styles.questionText}>
+            <Text style={[styles.questionText, { color: theme.text }]}>
                 {isToday ? "How are you feeling today?" : "What was your mood this day?"}
             </Text>
 
             {existingMood && (
-                <Text style={styles.existingMoodText}>
+                <Text style={[styles.existingMoodText, { color: theme.secondary }]}>
                     Current mood: {existingMood}
                 </Text>
             )}
@@ -179,7 +196,7 @@ export default function AddMoodScreen({ navigation, route }) {
                                     source={templateImage} 
                                     style={[
                                         styles.templateBorder,
-                                        { tintColor: emotionColors[emotion.name] }
+                                        { tintColor: isDarkMode ? '#fff' : emotionColors[emotion.name] }
                                     ]} 
                                 />
                             )}
@@ -191,38 +208,77 @@ export default function AddMoodScreen({ navigation, route }) {
                                 ]} 
                             />
                             {selectedEmotion?.id === emotion.id && (
-                                <Text style={styles.emotionName}>{emotion.name}</Text>
+                                <Text style={[styles.emotionName, { color: theme.text }]}>{emotion.name}</Text>
                             )}
                         </TouchableOpacity>
                     );
                 })}
             </View>
 
-            <View style={styles.iconContainer}>
+            <View style={[
+                styles.iconContainer,
+                isDarkMode && {
+                    shadowColor: undefined,
+                    shadowOffset: undefined,
+                    shadowOpacity: 0,
+                    shadowRadius: 0,
+                    elevation: 0,
+                }
+            ]}>
                 <TouchableOpacity 
-                    style={styles.icon} 
+                    style={[
+                        styles.icon, 
+                        { backgroundColor: theme.navbar },
+                        isDarkMode && {
+                            shadowColor: undefined,
+                            shadowOffset: undefined,
+                            shadowOpacity: 0,
+                            shadowRadius: 0,
+                            elevation: 0,
+                        }
+                    ]} 
                     onPress={() => navigation.replace('HomeScreen')}
                 >
-                    <Octicons name="home" size={28} color="#A081C3" />
+                    <Octicons name="home" size={28} color={theme.primary} />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.activeIcon}>
+                <TouchableOpacity style={[
+                    styles.activeIcon, 
+                    { backgroundColor: theme.primary },
+                    isDarkMode && {
+                        shadowColor: undefined,
+                        shadowOffset: undefined,
+                        shadowOpacity: 0,
+                        shadowRadius: 0,
+                        elevation: 0,
+                    }
+                ]}>
                     <FontAwesome name="plus" size={28} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity 
-                    style={styles.icon} 
+                    style={[
+                        styles.icon, 
+                        { backgroundColor: theme.navbar },
+                        isDarkMode && {
+                            shadowColor: undefined,
+                            shadowOffset: undefined,
+                            shadowOpacity: 0,
+                            shadowRadius: 0,
+                            elevation: 0,
+                        }
+                    ]} 
                     onPress={() => navigation.replace('SettingsScreen')}
                 >
-                    <Ionicons name="settings" size={28} color="#A081C3" />
+                    <Ionicons name="settings" size={28} color={theme.primary} />
                 </TouchableOpacity>
             </View>
         </View>
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f7ea',
+        backgroundColor: theme.background,
     },
     emotionsContainer: {
         flex: 1,
@@ -242,7 +298,6 @@ const styles = StyleSheet.create({
     },
     existingMoodText: {
         fontSize: 16,
-        color: '#666',
         textAlign: 'center',
         position: 'absolute',
         width: '100%',
@@ -257,28 +312,15 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     selectedEmotion: {
-        backgroundColor: 'rgba(255,255,255,0.2)'
+        backgroundColor: 'trasnparent'
     },
     emotionImage: {
         width: '90%',
         height: '90%',
         resizeMode: 'contain'
     },
-    selectedEmotionImage: {
-        borderWidth: 0,
-        borderRadius: width * 0.1,
-    },
-    templateBorder: {
-        position: 'absolute',
-        width: '95%',
-        height: '95%',
-        resizeMode: 'contain',
-        transform: [{ translateY: -10 }],
-        zIndex: 1
-    },
     emotionName: {
         fontSize: 12,
-        color: '#000',
         marginTop: 5,
         fontWeight: '600'
     },
@@ -294,20 +336,18 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     icon: {
-        width: width * 0.17,
-        height: width * 0.17,
+        width: width * 0.15,
+        height: width * 0.15,
         padding: 15,
-        backgroundColor: 'white',
-        borderRadius: 20,
+        borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
     },
     activeIcon: {
-        width: width * 0.17,
-        height: width * 0.17,
+        width: width * 0.15,
+        height: width * 0.15,
         padding: 15,
-        backgroundColor: '#A081C3',
-        borderRadius: 20,
+        borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -315,15 +355,15 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: width * 0.175,
         left: width * 0.045,
-        borderRadius: 20,
+        borderRadius: 15,
         borderWidth: 0.5,
-        borderColor: '#e1e1e1',
-        backgroundColor: 'white',
+        borderColor: theme.border,
+        backgroundColor: theme.card,
         justifyContent: 'flex-start',
         alignItems: 'center',
         flexDirection: 'row',
         gap: 15,
-        paddingVertical: 10,
+        paddingVertical: 5,
         paddingHorizontal: 15,
         shadowColor: 'grey',
         shadowOffset: { width: 0, height: 2 },
@@ -333,8 +373,8 @@ const styles = StyleSheet.create({
         zIndex: 2,
     },
     profileImageContainer: {
-        width: width * 0.13,
-        height: width * 0.13,
+        width: width * 0.1,
+        height: width * 0.1,
         borderRadius: 999,
         borderWidth: 3,
         borderColor: '#CCC1DA',
@@ -352,6 +392,14 @@ const styles = StyleSheet.create({
     nameText: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#000'
+        color: 'black'
+    },
+    templateBorder: {
+        position: 'absolute',
+        width: '95%',
+        height: '95%',
+        resizeMode: 'contain',
+        transform: [{ translateY: -10 }],
+        zIndex: 1
     },
 });

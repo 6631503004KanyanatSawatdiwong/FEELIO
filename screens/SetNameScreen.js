@@ -6,6 +6,8 @@ import {
 import { database, ref, set } from '../firebaseConfig';
 import { auth } from '../firebaseConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import { useTheme, lightTheme, darkTheme } from '../context/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -14,7 +16,11 @@ const avatars = [
     { id: '2', image: require('../assets/ProfileImages/pinkMan.png') },
 ];
 
-export default function SetNameScreen({ navigation }) {
+export default function SetNameScreen() {
+    const navigation = useNavigation();
+    const { isDarkMode } = useTheme();
+    const theme = isDarkMode ? darkTheme : lightTheme;
+    const styles = createStyles(theme);
     const [avatarId, setAvatarId] = useState(0);
     const [username, setUsername] = useState('');
     const scrollX = useRef(new Animated.Value(0)).current;
@@ -57,9 +63,9 @@ export default function SetNameScreen({ navigation }) {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
             <View style={styles.textContainer}>
-                    <Text style={styles.text}>Choose Your Avatar</Text>
+                <Text style={[styles.text, { color: theme.text }]}>Choose your name</Text>
             </View>
 
             <View style={styles.avatarContainer}>
@@ -101,39 +107,48 @@ export default function SetNameScreen({ navigation }) {
             </View>
 
             <TextInput 
-                style={styles.input} 
+                style={[
+                    styles.input,
+                    { 
+                        backgroundColor: theme.card,
+                        color: theme.text,
+                        borderColor: theme.border
+                    }
+                ]} 
                 placeholder="Enter your name" 
-                placeholderTextColor="grey" 
+                placeholderTextColor={theme.secondary}
                 value={username} 
                 onChangeText={setUsername}
             />
 
             <TouchableOpacity 
-                style={[styles.startButton, username.trim() ? {} : styles.disabledButton]} 
+                style={[
+                    styles.startButton,
+                    username.trim() ? {} : styles.disabledButton
+                ]} 
                 onPress={handleStart}
                 disabled={!username.trim()}
             >
                 <Text style={styles.startButtonText}>START</Text>
             </TouchableOpacity>
-
         </View>
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#f8f7ea'
-    }, 
+    },
     textContainer: {
         alignItems: 'center',
         paddingTop: 10,
         marginVertical: 20,
         position: 'absolute',
         top: '10%'
-    },    
+    },
     text: {
         fontSize: 26,
         fontWeight: 'bold',
@@ -141,8 +156,13 @@ const styles = StyleSheet.create({
     },
     characterWrapper: {
         width: width, 
-        justifyContent: 'center', 
-        alignItems: 'center'
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: 'grey',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 5,
     },
     characterImage: {
         width: width * 0.8,
@@ -159,6 +179,11 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'grey',
         borderRadius: 10,
+        shadowColor: 'grey',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 5,
     },
     startButton: {
         position: 'absolute',
@@ -171,6 +196,11 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#A081C3',
         marginVertical: 10,
+        shadowColor: 'grey',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 5,
     },
     startButtonText: {
         color: 'white',

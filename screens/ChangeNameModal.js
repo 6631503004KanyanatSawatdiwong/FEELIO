@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput, Dimensions, FlatList, Image } from 'react-native';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput, Dimensions, FlatList, Image, Alert } from 'react-native';
 import { database, ref, update } from '../firebaseConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useTheme, lightTheme, darkTheme } from '../context/ThemeContext';
 const { width, height } = Dimensions.get('window');
 
 const avatars = [
@@ -12,6 +13,9 @@ const avatars = [
 ];
 
 export default function ChangeNameModal({ visible, onClose, onSave, currentName, currentAvatarId }) {
+    const { isDarkMode } = useTheme();
+    const theme = isDarkMode ? darkTheme : lightTheme;
+    const styles = createStyles(theme);
     const [name, setName] = useState(currentName || '');
     const [isEditing, setIsEditing] = useState(false);
     const [selectedAvatarId, setSelectedAvatarId] = useState(currentAvatarId || '0');
@@ -22,6 +26,10 @@ export default function ChangeNameModal({ visible, onClose, onSave, currentName,
     }, [currentName, currentAvatarId]);
 
     const handleSave = async () => {
+        if (!name.trim()) {
+            Alert.alert('Error', 'Please enter a name');
+            return;
+        }
         try {
             const userId = await AsyncStorage.getItem('userId');
             if (!userId) return;
@@ -67,7 +75,7 @@ export default function ChangeNameModal({ visible, onClose, onSave, currentName,
             <View style={styles.modalOverlay}>
                 <View style={styles.modalContent}>
                     <View style={styles.header}>
-                        <Text style={styles.title}>Edit Profile</Text>
+                        <Text style={[styles.title, { color: theme.text }]}>Edit Profile</Text>
                         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                             <Ionicons name="close" size={24} color="black" />
                         </TouchableOpacity>
@@ -87,7 +95,12 @@ export default function ChangeNameModal({ visible, onClose, onSave, currentName,
                     <View style={styles.nameSection}>
                         {isEditing ? (
                             <TextInput
-                                style={styles.input}
+                                style={[
+                                    styles.input,
+                                    { 
+                                        color: theme.text,
+                                    }
+                                ]}
                                 value={name}
                                 onChangeText={setName}
                                 placeholder={currentName}
@@ -95,10 +108,10 @@ export default function ChangeNameModal({ visible, onClose, onSave, currentName,
                             />
                         ) : (
                             <View style={styles.nameContainer}>
-                                <Text style={styles.nameText}>{name}</Text>
+                                <Text style={[styles.nameText, { color: theme.text }]}>{name}</Text>
                                 <TouchableOpacity 
                                     onPress={() => setIsEditing(true)}
-                                    style={styles.editButton}
+                                    style={[styles.editButton, { color: theme.text }]}
                                 >
                                     <Feather name="edit-3" size={16} color="#666" style={{ bottom: -2 }} />
                                 </TouchableOpacity>
@@ -106,19 +119,27 @@ export default function ChangeNameModal({ visible, onClose, onSave, currentName,
                         )}
                     </View>
 
-                    <TouchableOpacity 
-                        style={styles.saveButton} 
-                        onPress={handleSave}
-                    >
-                        <Text style={styles.saveButtonText}>Save Changes</Text>
-                    </TouchableOpacity>
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity 
+                            style={[styles.button, styles.cancelButton]} 
+                            onPress={onClose}
+                        >
+                            <Text style={styles.buttonText}>Cancel</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                            style={[styles.button, styles.saveButton]} 
+                            onPress={handleSave}
+                        >
+                            <Text style={styles.buttonText}>Save Changes</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         </Modal>
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -126,7 +147,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalContent: {
-        backgroundColor: 'white',
+        backgroundColor: theme.card,
         borderRadius: 20,
         padding: 25,
         width: width * 0.9,
@@ -191,7 +212,6 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 20,
-        // backgroundColor: '#f8f7ea',
         alignSelf: 'center',
         minWidth: 100,
         marginVertical: 5,
@@ -211,21 +231,34 @@ const styles = StyleSheet.create({
         fontSize: 22,
         paddingVertical: 10,
         paddingHorizontal: 20,
+        marginVertical: 5,
         // backgroundColor: '#f8f7ea',
         borderRadius: 20,
         minWidth: 100,
         textAlign: 'center',
-        fontWeight: '500'
+        fontWeight: '500',
+        color: theme.text,
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 10,
+        width: '100%',
+    },
+    button: {
+        paddingVertical: 10,
+        // paddingHorizontal: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+        width: '45%',
+    },
+    cancelButton: {
+        backgroundColor: '#929292',
     },
     saveButton: {
         backgroundColor: '#A081C3',
-        padding: 10,
-        borderRadius: 10,
-        alignItems: 'center',
-        width: '50%',
-        alignSelf: 'center',
     },
-    saveButtonText: {
+    buttonText: {
         color: 'white',
         fontSize: 16,
         fontWeight: 'bold',

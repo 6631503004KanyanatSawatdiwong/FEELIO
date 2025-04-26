@@ -13,6 +13,8 @@ import TermsOfUseScreen from './screens/TermsOfUseScreen';
 import SetNameScreen from './screens/SetNameScreen';
 import ChangeNameModal from './screens/ChangeNameModal';
 import ChangePasswordModal from './screens/ChangePasswordModal';
+import { ThemeProvider } from './context/ThemeContext';
+
 const Stack = createStackNavigator();
 
 const noAnimationConfig = {
@@ -24,7 +26,8 @@ const noAnimationConfig = {
 
 export default function App() {
   return (
-    <NavigationContainer>
+    <ThemeProvider>
+      <NavigationContainer>
         {/* <StatusBar barStyle="light-content" backgroundColor="transparent" translucent /> */}
         <Stack.Navigator 
           initialRouteName="AuthScreen" 
@@ -53,5 +56,6 @@ export default function App() {
           <Stack.Screen name="ChangePasswordModal" component={ChangePasswordModal} />
         </Stack.Navigator>
       </NavigationContainer>
+    </ThemeProvider>
   );
 }
