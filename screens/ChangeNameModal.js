@@ -77,7 +77,7 @@ export default function ChangeNameModal({ visible, onClose, onSave, currentName,
                     <View style={styles.header}>
                         <Text style={[styles.title, { color: theme.text }]}>Edit Profile</Text>
                         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                            <Ionicons name="close" size={24} color="black" />
+                            <Ionicons name="close" size={24} color={theme.text} />
                         </TouchableOpacity>
                     </View>
 
@@ -113,7 +113,7 @@ export default function ChangeNameModal({ visible, onClose, onSave, currentName,
                                     onPress={() => setIsEditing(true)}
                                     style={[styles.editButton, { color: theme.text }]}
                                 >
-                                    <Feather name="edit-3" size={16} color="#666" style={{ bottom: -2 }} />
+                                    <Feather name="edit-3" size={16} color="#666" style={{ bottom: -3 }} />
                                 </TouchableOpacity>
                             </View>
                         )}

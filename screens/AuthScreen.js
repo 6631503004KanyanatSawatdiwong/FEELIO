@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Dimensions } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import PrivacyPolicyModal from './PrivacyPolicyScreen';
 
 const { width, height } = Dimensions.get('window');
 const AuthScreen = ({ navigation }) => {
@@ -14,8 +15,8 @@ const AuthScreen = ({ navigation }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-  const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsError, setTermsError] = useState(false);
+  const [isPrivacyModalVisible, setIsPrivacyModalVisible] = useState(false);
 
   const handleAuth = async () => {
     try {
@@ -162,7 +163,7 @@ const AuthScreen = ({ navigation }) => {
                   By signing up, you agree to our{" "}
                   <Text 
                     style={styles.termsLink}
-                    onPress={() => setShowTermsModal(true)}
+                    onPress={() => setIsPrivacyModalVisible(true)}
                   >
                     Terms of Service and Privacy Policy
                   </Text>
@@ -196,52 +197,10 @@ const AuthScreen = ({ navigation }) => {
         </View>
       </ScrollView>
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={showTermsModal}
-        onRequestClose={() => setShowTermsModal(false)}
-        statusBarTranslucent={true}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <TouchableOpacity 
-              style={styles.closeButton}
-              onPress={() => setShowTermsModal(false)}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-            <ScrollView style={styles.termsScrollView}>
-              <Text style={styles.termsTitle}>Terms of Service and Privacy Policy</Text>
-              <Text style={styles.termsBody}>
-              <Text style={styles.termsTopic}>1. Introduction</Text>
-                {"\n"}Zody Focus is a space-themed focus timer app designed to help users stay productive by accumulating focus hours and unlocking new planets and companions. We are committed to respecting your privacy and ensuring transparency in how we handle your data.
-                {"\n\n"}
-                <Text style={styles.termsTopic}>2. Data Collection</Text>
-                {"\n"}Users must sign in using their email address and set their own username and password. We collect and store your login credentials and focus statistics, such as accumulated focus time and progress (e.g., unlocked planets or achievements).
-                {"\n\n"}
-                <Text style={styles.termsTopic}>3. Data Usage</Text>
-                {"\n"}The data we collect is used solely for saving your progress and enhancing your experience within the app (e.g., displaying your stats, progress, unlocked companions, and character customization). We do not sell, share, or use your data for third-party marketing purposes.
-                {"\n\n"}
-                <Text style={styles.termsTopic}>4. Data Storage</Text>
-                {"\n"}All user data is securely stored using Firebase. If you wish to delete your data, please contact our team directly.
-                {"\n\n"}
-                <Text style={styles.termsTopic}>5. Third-Party Services</Text>
-                {"\n"}Zody Focus does not use any third-party services that collect user data.
-                {"\n\n"}
-                <Text style={styles.termsTopic}>6. Core Features</Text>
-                {"\n"}Users can start and customize their own focus timer sessions. A statistics page allows users to view their data by year, month, or day. Access to the app is restricted to logged-in users only.
-                {"\n\n"}
-                <Text style={styles.termsTopic}>7. Progress System</Text>
-                {"\n"}Users unlock smaller planets and eventually larger ones based on accumulated focus time. Unlocking a large planet also grants users a floating space companion to accompany them during focus sessions. Additionally, users can collect achievements and customize their personal character within the app.
-                {"\n\n"}
-                <Text style={styles.termsTopic}>8. Notifications</Text>
-                {"\n"}Zody Focus does not currently use any notification system.
-              </Text>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+      <PrivacyPolicyModal
+                visible={isPrivacyModalVisible}
+                onClose={() => setIsPrivacyModalVisible(false)}
+      />
     </KeyboardAvoidingView>
   );
 };

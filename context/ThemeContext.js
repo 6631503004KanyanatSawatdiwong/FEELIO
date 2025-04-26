@@ -57,6 +57,7 @@ export const lightTheme = {
     border: '#e1e1e1',
     subcard: '#ffffff',
     navbar: '#ffffff',
+    modalbutton: '#A081C3',
 };
 
 export const darkTheme = {
@@ -67,5 +68,6 @@ export const darkTheme = {
     card: '#2d2d2d',
     border: '#404040',
     subcard: '#3D3D3D',
-    navbar: '#f8f7ea',
+    navbar: '#f8f7ea', 
+    modalbutton: '#ffffff',
 }; 

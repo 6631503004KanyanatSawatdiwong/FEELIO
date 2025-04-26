@@ -7,7 +7,10 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import Octicons from '@expo/vector-icons/Octicons';
 import ChangeNameModal from './ChangeNameModal';
 import ChangePasswordModal from './ChangePasswordModal';
-import { database, ref, onValue, update } from '../firebaseConfig';
+import PrivacyPolicyModal from './PrivacyPolicyScreen';
+import TermsOfUseModal from './TermsOfUseScreen';
+import { database, ref, onValue, update, set } from '../firebaseConfig';
+import { getAuth, deleteUser } from "firebase/auth";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme, lightTheme, darkTheme } from '../context/ThemeContext';
 import moment from 'moment';
@@ -26,8 +29,11 @@ export default function SettingsScreen() {
     const styles = createStyles(theme);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
+    const [isPrivacyModalVisible, setIsPrivacyModalVisible] = useState(false);
+    const [isTermsModalVisible, setIsTermsModalVisible] = useState(false);
     const [userData, setUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const auth = getAuth();
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -90,6 +96,64 @@ export default function SettingsScreen() {
                     onPress: async () => {
                         await AsyncStorage.clear();
                         navigation.navigate('AuthScreen');
+                    }
+                }
+            ]
+        );
+    };
+
+    const handleDeleteAccount = async () => {
+        Alert.alert(
+            "Delete Account",
+            "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently lost.",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            const userId = await AsyncStorage.getItem('userId');
+                            if (userId) {
+                                // Delete user data from Firebase Realtime Database
+                                const userRef = ref(database, `users/${userId}`);
+                                await set(userRef, null); // This effectively removes the data
+                            }
+
+                            // Delete user from Firebase Authentication
+                            const user = auth.currentUser;
+                            if (user) {
+                                await deleteUser(user);
+                            }
+
+                            // Clear AsyncStorage
+                            await AsyncStorage.clear();
+
+                            // Navigate to AuthScreen
+                            navigation.replace('AuthScreen');
+                        } catch (error) {
+                            console.error("Error deleting account:", error);
+                            if (error.code === 'auth/requires-recent-login') {
+                                Alert.alert(
+                                    "Authentication Required",
+                                    "Please sign in again to delete your account.",
+                                    [
+                                        {
+                                            text: "OK",
+                                            onPress: () => navigation.replace('AuthScreen')
+                                        }
+                                    ]
+                                );
+                            } else {
+                                Alert.alert(
+                                    "Error",
+                                    "Failed to delete account. Please try again later."
+                                );
+                            }
+                        }
                     }
                 }
             ]
@@ -189,27 +253,35 @@ export default function SettingsScreen() {
                     elevation: 0,
                 }
             ]}>
-                <TouchableOpacity style={[styles.privacyContainer, { backgroundColor: theme.subcard },
-                    isDarkMode && {
-                        shadowColor: undefined,
-                        shadowOffset: undefined,
-                        shadowOpacity: 0,
-                        shadowRadius: 0,
-                        elevation: 0,
-                    }
-                ]}>
+                <TouchableOpacity 
+                    style={[
+                        styles.privacyContainer, 
+                        { backgroundColor: theme.subcard },
+                        isDarkMode && {
+                            shadowColor: undefined,
+                            shadowOffset: undefined,
+                            shadowOpacity: 0,
+                            shadowRadius: 0,
+                            elevation: 0,
+                        }
+                    ]}
+                    onPress={() => setIsPrivacyModalVisible(true)}
+                >
                     <Text style={styles.otherText}>Privacy Policy</Text>
                     <Ionicons name="chevron-forward" size={20} color={theme.secondary} />
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.privacyContainer, { backgroundColor: theme.subcard }, 
-                    isDarkMode && {
-                        shadowColor: undefined,
-                        shadowOffset: undefined,
-                        shadowOpacity: 0,
-                        shadowRadius: 0,
-                        elevation: 0,
-                    }
-                ]}>
+                <TouchableOpacity 
+                    style={[styles.privacyContainer, { backgroundColor: theme.subcard }, 
+                        isDarkMode && {
+                            shadowColor: undefined,
+                            shadowOffset: undefined,
+                            shadowOpacity: 0,
+                            shadowRadius: 0,
+                            elevation: 0,
+                        }
+                    ]}
+                    onPress={() => setIsTermsModalVisible(true)}
+                >
                     <Text style={styles.otherText}>Terms of use</Text>
                     <Ionicons name="chevron-forward" size={20} color={theme.secondary} />
                 </TouchableOpacity>
@@ -253,14 +325,18 @@ export default function SettingsScreen() {
                     <Text style={styles.otherText}>Change Password</Text>
                     <Ionicons name="chevron-forward" size={20} color={theme.secondary} />
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.privacyContainer, { backgroundColor: theme.subcard },
-                    isDarkMode && {
-                        shadowColor: undefined,
-                        shadowOffset: undefined,
-                        shadowOpacity: 0,
-                        shadowRadius: 0,
-                        elevation: 0,
-                    }]}>
+                <TouchableOpacity 
+                    style={[styles.privacyContainer, { backgroundColor: theme.subcard },
+                        isDarkMode && {
+                            shadowColor: undefined,
+                            shadowOffset: undefined,
+                            shadowOpacity: 0,
+                            shadowRadius: 0,
+                            elevation: 0,
+                        }
+                    ]}
+                    onPress={handleDeleteAccount}
+                >
                     <Text style={styles.deleteAccountText}>Delete Account</Text>
                     <Ionicons name="chevron-forward" size={20} color={theme.secondary} />
                 </TouchableOpacity>
@@ -338,6 +414,14 @@ export default function SettingsScreen() {
             <ChangePasswordModal
                 visible={isPasswordModalVisible}
                 onClose={() => setIsPasswordModalVisible(false)}
+            />
+            <PrivacyPolicyModal
+                visible={isPrivacyModalVisible}
+                onClose={() => setIsPrivacyModalVisible(false)}
+            />
+            <TermsOfUseModal
+                visible={isTermsModalVisible}
+                onClose={() => setIsTermsModalVisible(false)}
             />
         </View>
     );
