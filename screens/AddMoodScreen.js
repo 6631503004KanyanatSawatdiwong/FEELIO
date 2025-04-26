@@ -14,6 +14,19 @@ import moment from 'moment';
 
 const { width, height } = Dimensions.get('window');
 
+const templateImage = require('../assets/MoodBadges/template.png');
+
+const emotionColors = {
+    'Happy': '#FCC803',
+    'Ecstatic': '#DF7D7D',
+    'Calm': '#B9D671',
+    'Sad': '#477AA9',
+    'Angry': '#D84950',
+    'Anxious': '#EBA443',
+    'Exhausted': '#928D8D',
+    'Stressed': '#C69FDD'
+};
+
 const avatars = [
     { id: '1', image: require('../assets/ProfileImages/yellowMan.png') },
     { id: '2', image: require('../assets/ProfileImages/pinkMan.png') },
@@ -161,7 +174,22 @@ export default function AddMoodScreen({ navigation, route }) {
                             ]}
                             onPress={() => handleEmotionPress(emotion)}
                         >
-                            <Image source={emotion.image} style={styles.emotionImage} />
+                            {selectedEmotion?.id === emotion.id && (
+                                <Image 
+                                    source={templateImage} 
+                                    style={[
+                                        styles.templateBorder,
+                                        { tintColor: emotionColors[emotion.name] }
+                                    ]} 
+                                />
+                            )}
+                            <Image 
+                                source={emotion.image} 
+                                style={[
+                                    styles.emotionImage,
+                                    selectedEmotion?.id === emotion.id && styles.selectedEmotionImage
+                                ]} 
+                            />
                             {selectedEmotion?.id === emotion.id && (
                                 <Text style={styles.emotionName}>{emotion.name}</Text>
                             )}
@@ -229,15 +257,24 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     selectedEmotion: {
-        borderWidth: 3,
-        borderColor: 'white',
-        borderRadius: width * 0.1,
         backgroundColor: 'rgba(255,255,255,0.2)'
     },
     emotionImage: {
         width: '90%',
         height: '90%',
         resizeMode: 'contain'
+    },
+    selectedEmotionImage: {
+        borderWidth: 0,
+        borderRadius: width * 0.1,
+    },
+    templateBorder: {
+        position: 'absolute',
+        width: '95%',
+        height: '95%',
+        resizeMode: 'contain',
+        transform: [{ translateY: -10 }],
+        zIndex: 1
     },
     emotionName: {
         fontSize: 12,
