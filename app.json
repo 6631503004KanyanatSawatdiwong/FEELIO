@@ -4,7 +4,7 @@
     "slug": "FEELIO",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/FEELIO-icon.png",
+    "icon": "./assets/FEELIOLogo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -22,7 +22,7 @@
       }
     },
     "web": {
-      "favicon": "./assets/FEELIO-splash-splash.png"
+      "favicon": "./assets/FEELIO-splash.png"
     }
   }
 }
