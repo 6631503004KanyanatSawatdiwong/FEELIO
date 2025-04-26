@@ -100,7 +100,7 @@ export default function ChangeNameModal({ visible, onClose, onSave, currentName,
                                     onPress={() => setIsEditing(true)}
                                     style={styles.editButton}
                                 >
-                                    <Feather name="edit-3" size={20} color="#666" />
+                                    <Feather name="edit-3" size={16} color="#666" style={{ bottom: -2 }} />
                                 </TouchableOpacity>
                             </View>
                         )}

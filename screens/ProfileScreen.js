@@ -7,11 +7,10 @@ import Octicons from '@expo/vector-icons/Octicons';
 import { useNavigation } from '@react-navigation/native';
 import { database, ref, set, get, onValue } from '../firebaseConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Feather from '@expo/vector-icons/Feather';
 import moment from 'moment';
 import Svg, { Circle, Path, G } from 'react-native-svg';
+import ChangeNameModal from './ChangeNameModal';
 
 const { width, height } = Dimensions.get('window');
 const avatars = [
@@ -119,6 +118,7 @@ export default function ProfileScreen() {
     const [moodStats, setMoodStats] = useState({});
     const [selectedDate, setSelectedDate] = useState(moment());
     const [totalMoods, setTotalMoods] = useState(0);
+    const [isModalVisible, setIsModalVisible] = useState(false);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -195,6 +195,26 @@ export default function ProfileScreen() {
         setTotalMoods(total);
     };
 
+    const handleSaveName = async (newName) => {
+        try {
+            const userId = await AsyncStorage.getItem('userId');
+            if (!userId) {
+                Alert.alert('Error', 'User not found');
+                return;
+            }
+
+            const userRef = ref(database, `users/${userId}`);
+            await update(userRef, {
+                name: newName
+            });
+            
+            setUserData(prev => ({ ...prev, name: newName }));
+        } catch (error) {
+            console.error("Error updating name:", error);
+            Alert.alert('Error', 'Failed to update name. Please try again.');
+        }
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.iconContainer}>
@@ -205,7 +225,7 @@ export default function ProfileScreen() {
 
             <TouchableOpacity 
                 style={styles.profileButton} 
-                onPress={() => navigation.navigate('ProfileScreen')}
+                onPress={() => setIsModalVisible(true)}
             >
                 <View style={styles.profileImageContainer}>
                     <Image 
@@ -214,6 +234,7 @@ export default function ProfileScreen() {
                     />
                 </View>
                 <Text style={styles.nameText}>{userData?.name || 'User'}</Text>
+                <Feather name="edit-3" size={16} color="#666" />
             </TouchableOpacity>
 
             <View style={styles.monthContainer}>
@@ -246,6 +267,16 @@ export default function ProfileScreen() {
                     </View>
                 ))}
             </View>
+
+            {/* Modals */}
+            <ChangeNameModal
+                visible={isModalVisible}
+                onClose={() => setIsModalVisible(false)}
+                onSave={handleSaveName}
+                currentName={userData?.name}
+                currentAvatarId={userData?.avatarId || '0'}
+            />
+            
         </View>
     )
 };
