@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
     View, Text, StyleSheet, TouchableOpacity, Image, 
-    Dimensions, Alert, Animated, StatusBar
+    Dimensions, Alert, StatusBar, Platform
 } from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
 import { useNavigation } from '@react-navigation/native';
@@ -56,6 +56,26 @@ const CircularProgress = ({ stats, size }) => {
         .filter(([_, percentage]) => percentage > 0)
         .sort((a, b) => b[1] - a[1]); // Sort by percentage descending
 
+    // If no active emotions, show grey circle
+    if (activeEmotions.length === 0) {
+        return (
+            <Svg width={size} height={size}>
+                <Circle
+                    cx={center}
+                    cy={center}
+                    r={radius}
+                    fill={theme.emptyState}
+                />
+                <Circle
+                    cx={center}
+                    cy={center}
+                    r={radius - strokeWidth / 2}
+                    fill={theme.background}
+                />
+            </Svg>
+        );
+    }
+
     // Draw the segments
     activeEmotions.forEach(([mood, percentage], index) => {
         const angle = (percentage / 100) * 360;
@@ -70,32 +90,35 @@ const CircularProgress = ({ stats, size }) => {
         const x2 = center + radius * Math.cos(endRad);
         const y2 = center + radius * Math.sin(endRad);
         
-        const largeArcFlag = angle > 180 ? 1 : 0;
-        
-        // Ensure the last segment connects perfectly
-        const isLastSegment = index === activeEmotions.length - 1;
-        const pathData = isLastSegment
-            ? `
+        // For single mood with 100%, use a complete circle path
+        if (activeEmotions.length === 1 && percentage === 100) {
+            paths.push(
+                <Circle
+                    key={mood}
+                    cx={center}
+                    cy={center}
+                    r={radius}
+                    fill={emotionColors[mood]}
+                />
+            );
+        } else {
+            const largeArcFlag = angle > 180 ? 1 : 0;
+            const pathData = `
                 M ${center} ${center}
                 L ${x1} ${y1}
                 A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}
                 L ${center} ${center}
-                Z
-            `
-            : `
-                M ${center} ${center}
-                L ${x1} ${y1}
-                A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}
-                L ${center} ${center}
+                ${index === activeEmotions.length - 1 ? 'Z' : ''}
             `;
-        
-        paths.push(
-            <Path
-                key={mood}
-                d={pathData}
-                fill={emotionColors[mood]}
-            />
-        );
+            
+            paths.push(
+                <Path
+                    key={mood}
+                    d={pathData}
+                    fill={emotionColors[mood]}
+                />
+            );
+        }
         
         startAngle = endAngle;
     });
@@ -174,25 +197,15 @@ export default function ProfileScreen() {
             }
         });
 
-        // Calculate exact percentages without rounding first
-        const exactPercentages = {};
-        let remainingPercentage = 100;
-        
+        // If there's at least one mood entry, calculate percentages
         if (total > 0) {
             Object.keys(stats).forEach(mood => {
-                const exactPercentage = (stats[mood] / total) * 100;
-                exactPercentages[mood] = exactPercentage;
-            });
-
-            // Round percentages while maintaining total of 100
-            Object.keys(stats).forEach((mood, index, array) => {
-                if (index === array.length - 1) {
-                    // Last item gets whatever is remaining
-                    stats[mood] = Math.round(remainingPercentage);
+                // For a single mood entry, set its percentage to 100 and others to 0
+                if (total === 1) {
+                    stats[mood] = stats[mood] > 0 ? 100 : 0;
                 } else {
-                    const roundedValue = Math.round(exactPercentages[mood]);
-                    stats[mood] = roundedValue;
-                    remainingPercentage -= roundedValue;
+                    // For multiple entries, calculate exact percentages
+                    stats[mood] = Math.round((stats[mood] / total) * 100);
                 }
             });
         }
@@ -366,12 +379,16 @@ const createStyles = (theme) => StyleSheet.create({
         alignItems: 'center',
         width: width * 0.1,
         height: width * 0.1,
+        elevation: 5,
     },
     headerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginTop: height * 0.05,
+        marginTop: Platform.select({
+            ios: height * 0.05,
+            android: height * 0.01
+        }),
         marginBottom: 10,
         paddingVertical: 10,
     },
@@ -427,7 +444,7 @@ const createStyles = (theme) => StyleSheet.create({
     },
     circleContainer: {
         alignItems: 'center',
-        marginTop: 30,
+        marginTop: height * 0.05,
     },
     outerCircle: {
         width: width * 0.5,
@@ -440,6 +457,10 @@ const createStyles = (theme) => StyleSheet.create({
         position: 'absolute',
         justifyContent: 'center',
         alignItems: 'center',
+        top: Platform.select({
+            android: 50,
+            ios: 60
+        })
     },
     percentageText: {
         fontSize: 36,

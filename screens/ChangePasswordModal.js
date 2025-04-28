@@ -3,10 +3,14 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, KeyboardAvo
 import { auth } from '../firebaseConfig';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useTheme, lightTheme, darkTheme } from '../context/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
 export default function ChangePasswordModal({ visible, onClose }) {
+    const { isDarkMode } = useTheme();
+    const theme = isDarkMode ? darkTheme : lightTheme;
+    const styles = createStyles(theme);
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -39,7 +43,7 @@ export default function ChangePasswordModal({ visible, onClose }) {
             <View style={styles.modalOverlay}>
                 <View style={styles.modalContent}>
                     <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                        <Ionicons name="close" size={24} color="black" />
+                        <Ionicons name="close" size={24} color={theme.text} />
                     </TouchableOpacity>
 
                     <View style={styles.modalHeader}>
@@ -51,8 +55,9 @@ export default function ChangePasswordModal({ visible, onClose }) {
                     </Text>
 
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { color: theme.text }]}
                         placeholder="Enter your email"
+                        placeholderTextColor={theme.secondary}
                         value={email}
                         onChangeText={setEmail}
                         keyboardType="email-address"
@@ -83,7 +88,7 @@ export default function ChangePasswordModal({ visible, onClose }) {
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -92,7 +97,7 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         width: width * 0.85,
-        backgroundColor: 'white',
+        backgroundColor: theme.card,
         borderRadius: 20,
         padding: 20,
         shadowColor: 'black',
@@ -108,31 +113,35 @@ const styles = StyleSheet.create({
     modalTitle: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#000000',
+        color: theme.text,
     },
     description: {
         fontSize: 14,
-        color: '#6D6D6D',
+        color: theme.text,
         textAlign: 'center',
         marginBottom: 20,
     },
     input: {
         borderWidth: 1,
-        borderColor: '#e1e1e1',
+        borderColor: theme.border,
         borderRadius: 10,
         padding: 15,
         fontSize: 16,
         marginBottom: 20,
+        color: theme.text,
     },
     buttonContainer: {
         flexDirection: 'row',
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
         gap: 10,
+        width: '100%',
     },
     button: {
+        flex: 1,
         paddingVertical: 10,
-        paddingHorizontal: 20,
+        // paddingHorizontal: 20,
         borderRadius: 10,
+        alignItems: 'center',
     },
     cancelButton: {
         backgroundColor: '#f0f0f0',
@@ -142,12 +151,12 @@ const styles = StyleSheet.create({
     },
     cancelButtonText: {
         color: '#000000',
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: '600',
     },
     saveButtonText: {
         color: 'white',
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: '600',
     },
     closeButton: {

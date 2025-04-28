@@ -58,6 +58,7 @@ export const lightTheme = {
     subcard: '#ffffff',
     navbar: '#ffffff',
     modalbutton: '#A081C3',
+    emptyState: '#928E80',
 };
 
 export const darkTheme = {
@@ -70,4 +71,5 @@ export const darkTheme = {
     subcard: '#3D3D3D',
     navbar: '#f8f7ea', 
     modalbutton: '#ffffff',
+    emptyState: '#404040',
 }; 

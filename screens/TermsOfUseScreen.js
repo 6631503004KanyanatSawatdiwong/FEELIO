@@ -26,7 +26,7 @@ export default function TermsOfUseModal({ visible, onClose }) {
                             <Text style={[styles.closeButtonText, { color: theme.modalbutton }]}>Close</Text>
                         </TouchableOpacity>
                         <Text style={[styles.headerTitle, { color: theme.text }]}>Terms of Use</Text>
-                    </View>
+        </View>
 
                     <ScrollView 
                         showsVerticalScrollIndicator={false}

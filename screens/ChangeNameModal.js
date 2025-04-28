@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput, Dimensions, FlatList, Image, Alert } from 'react-native';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput, Dimensions, FlatList, Image, Alert, Platform } from 'react-native';
 import { database, ref, update } from '../firebaseConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Feather from '@expo/vector-icons/Feather';
@@ -190,8 +190,16 @@ const createStyles = (theme) => StyleSheet.create({
         borderColor: '#A081C3',
     },
     avatarImage: {
-        width: width * 0.3,
-        height: width * 0.3,
+        ...Platform.select({
+            ios: {
+                width: width * 0.3,
+                height: width * 0.3,
+            },
+            android: {
+                width: width * 0.225,
+                height: width * 0.225,
+            }
+        }),
         resizeMode: 'cover',
         justifyContent: 'center',
         alignItems: 'center',
@@ -247,10 +255,10 @@ const createStyles = (theme) => StyleSheet.create({
     },
     button: {
         paddingVertical: 10,
-        // paddingHorizontal: 15,
+        paddingHorizontal: 15,
         borderRadius: 10,
         alignItems: 'center',
-        width: '45%',
+        // width: '45%',
     },
     cancelButton: {
         backgroundColor: '#929292',

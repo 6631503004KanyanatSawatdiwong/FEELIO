@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, Alert, ActivityIndicator, Switch, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, Alert, ActivityIndicator, Switch, StatusBar, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -444,7 +444,10 @@ const createStyles = (theme) => StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         alignSelf: 'flex-start',
-        marginTop: '12%',
+        marginTop: Platform.select({
+            ios: '12%',
+            android: '5%'
+        }),
         marginBottom: 20,
         marginLeft: 5,
         color: theme.text
@@ -459,8 +462,16 @@ const createStyles = (theme) => StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginVertical: 10,
-        paddingHorizontal: 20,
-        paddingVertical: 15,
+        ...Platform.select({
+            ios: {
+                paddingHorizontal: 20,
+                paddingVertical: 15,
+            },
+            android: {
+                paddingHorizontal: 15,
+                paddingVertical: 10,
+            }
+        }),
         shadowColor: 'grey',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
@@ -497,7 +508,10 @@ const createStyles = (theme) => StyleSheet.create({
         backgroundColor: theme.card,
         gap: 10,
         marginVertical: 10,
-        padding: 20,
+        padding: Platform.select({
+            ios: 20,
+            android: 15
+        }),
         shadowColor: 'grey',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
@@ -505,8 +519,16 @@ const createStyles = (theme) => StyleSheet.create({
         elevation: 5,
     },
     privacyContainer: {
-        paddingHorizontal: 10,
-        paddingVertical: 15,
+        ...Platform.select({
+            ios: {
+                paddingHorizontal: 10,
+                paddingVertical: 15,
+            },
+            android: {
+                paddingHorizontal: 10,
+                paddingVertical: 12,
+            }
+        }),
         borderWidth: 0.5,
         borderRadius: 10,
         borderColor: theme.border,
@@ -521,21 +543,31 @@ const createStyles = (theme) => StyleSheet.create({
     iconContainer: {
         position: 'absolute',
         bottom: width * 0.075,
+        alignSelf: 'center',
         flexDirection: 'row',
         shadowColor: 'grey',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 5,
         elevation: 5,
+        backgroundColor: 'transparent',
     },
     icon: {
         width: width * 0.15,
         height: width * 0.15,
-        padding: 15,
         backgroundColor: theme.card,
         borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
+        ...Platform.select({
+            android: {
+                shadowColor: 'grey',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+                elevation: 5,
+            }
+        })
     },
     iconAndText: {
         flexDirection: 'row',
@@ -550,11 +582,19 @@ const createStyles = (theme) => StyleSheet.create({
     activeIcon: {
         width: width * 0.15,
         height: width * 0.15,
-        padding: 15,
-        backgroundColor: '#A081C3',
+        backgroundColor: theme.primary,
         borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
+        ...Platform.select({
+            android: {
+                shadowColor: 'grey',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+                elevation: 5,
+            }
+        })
     },
     otherText: {
         fontSize: 18,

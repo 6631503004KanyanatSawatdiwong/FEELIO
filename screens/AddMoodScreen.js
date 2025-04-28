@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
     View, Text, StyleSheet, TouchableOpacity, Image, 
-    Dimensions, Alert, Animated, StatusBar, TextInput 
+    Dimensions, Alert, StatusBar, Platform
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -334,26 +334,48 @@ const createStyles = (theme) => StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 5,
         elevation: 5,
+        backgroundColor: 'transparent',
     },
     icon: {
         width: width * 0.15,
         height: width * 0.15,
-        padding: 15,
+        backgroundColor: theme.card,
         borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
+        ...Platform.select({
+            android: {
+                shadowColor: 'grey',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+                elevation: 5,
+            }
+        })
     },
     activeIcon: {
         width: width * 0.15,
         height: width * 0.15,
-        padding: 15,
+        backgroundColor: theme.primary,
         borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
+        ...Platform.select({
+            android: {
+                shadowColor: 'grey',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+                elevation: 5,
+            }
+        })
     },
     profileButton: {
         position: 'absolute',
-        top: width * 0.175,
+        top: Platform.select({
+            ios: width * 0.175,
+            android: width * 0.1
+        }),
         left: width * 0.045,
         borderRadius: 15,
         borderWidth: 0.5,

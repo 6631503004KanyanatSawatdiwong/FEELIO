@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, FlatList, Alert, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, FlatList, Alert, StatusBar, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -91,22 +91,21 @@ export default function HomeScreen({ navigation }) {
         
         // Add a small delay to ensure FlatList is ready
         const timer = setTimeout(() => {
-            if (currentYear === now.year() && flatListRef.current && months.length > 0) {
-                const currentMonthIndex = months.findIndex(month => 
-                    month.month() === now.month()
-                );
+            if (flatListRef.current && months.length > 0) {
+                const currentMonthIndex = now.month();
                 if (currentMonthIndex !== -1) {
                     try {
                         flatListRef.current.scrollToIndex({
                             index: currentMonthIndex,
-                            animated: false
+                            animated: false,
+                            viewPosition: 0.5
                         });
                     } catch (error) {
                         console.log('Error scrolling to index:', error);
                     }
                 }
             }
-        }, 100);
+        }, Platform.OS === 'android' ? 300 : 100);
 
         return () => clearTimeout(timer);
     }, [selectedYear]);
@@ -348,7 +347,10 @@ const createStyles = (theme) => StyleSheet.create({
     },
     profileButton: {
         position: 'absolute',
-        top: width * 0.175,
+        top: Platform.select({
+            ios: width * 0.175,
+            android: width * 0.1
+        }),
         left: width * 0.045,
         borderRadius: 15,
         borderWidth: 0.5,
@@ -392,7 +394,10 @@ const createStyles = (theme) => StyleSheet.create({
     calendarContainer: {
         flex: 1,
         width: '100%',
-        top: height * 0.165,
+        top: Platform.select({
+            ios: height * 0.165,
+            android: height * 0.135
+        }),
     },
     yearNavigation: {
         flexDirection: 'row',
@@ -477,23 +482,43 @@ const createStyles = (theme) => StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 5,
         elevation: 5,
+        backgroundColor: 'transparent',
     },
     icon: {
         width: width * 0.15,
         height: width * 0.15,
-        padding: 15,
         backgroundColor: theme.card,
         borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
+        ...Platform.select({
+            android: {
+                shadowColor: 'grey',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+                elevation: 5,
+            }
+        })
     },
     activeIcon: {
         width: width * 0.15,
         height: width * 0.15,
-        padding: 15,
         backgroundColor: theme.primary,
         borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
+        ...Platform.select({
+            android: {
+                shadowColor: 'grey',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+                elevation: 5,
+            }
+        })
     },
+    iconImage: {
+        padding: 5
+    }
 });

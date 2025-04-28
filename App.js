@@ -27,7 +27,7 @@ const noAnimationConfig = {
 export default function App() {
   return (
     <ThemeProvider>
-      <NavigationContainer>
+    <NavigationContainer>
         {/* <StatusBar barStyle="light-content" backgroundColor="transparent" translucent /> */}
         <Stack.Navigator 
           initialRouteName="AuthScreen" 
