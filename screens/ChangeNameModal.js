@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput, Dimensions, FlatList, Image, Alert, Platform } from 'react-native';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput, Dimensions, FlatList, Image, Alert, Platform, SafeAreaView } from 'react-native';
 import { database, ref, update } from '../firebaseConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Feather from '@expo/vector-icons/Feather';
@@ -72,77 +72,82 @@ export default function ChangeNameModal({ visible, onClose, onSave, currentName,
             animationType="fade"
             onRequestClose={onClose}
         >
-            <View style={styles.modalOverlay}>
-                <View style={styles.modalContent}>
-                    <View style={styles.header}>
-                        <Text style={[styles.title, { color: theme.text }]}>Edit Profile</Text>
-                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                            <Ionicons name="close" size={24} color={theme.text} />
-                        </TouchableOpacity>
-                    </View>
+            <SafeAreaView style={[styles.safeArea, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
+                        <View style={styles.header}>
+                            <Text style={[styles.title, { color: theme.text }]}>Edit Profile</Text>
+                            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                                <Ionicons name="close" size={24} color={theme.text} />
+                            </TouchableOpacity>
+                        </View>
 
-                    <View style={styles.avatarSection}>
-                        <FlatList
-                            data={avatars}
-                            renderItem={renderAvatar}
-                            keyExtractor={item => item.id}
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.avatarList}
-                        />
-                    </View>
-
-                    <View style={styles.nameSection}>
-                        {isEditing ? (
-                            <TextInput
-                                style={[
-                                    styles.input,
-                                    { 
-                                        color: theme.text,
-                                    }
-                                ]}
-                                value={name}
-                                onChangeText={setName}
-                                placeholder={currentName}
-                                autoFocus={true}
+                        <View style={styles.avatarSection}>
+                            <FlatList
+                                data={avatars}
+                                renderItem={renderAvatar}
+                                keyExtractor={item => item.id}
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={styles.avatarList}
                             />
-                        ) : (
-                            <View style={styles.nameContainer}>
-                                <Text style={[styles.nameText, { color: theme.text }]}>{name}</Text>
-                                <TouchableOpacity 
-                                    onPress={() => setIsEditing(true)}
-                                    style={[styles.editButton, { color: theme.text }]}
-                                >
-                                    <Feather name="edit-3" size={16} color="#666" style={{ bottom: -3 }} />
-                                </TouchableOpacity>
-                            </View>
-                        )}
-                    </View>
+                        </View>
 
-                    <View style={styles.buttonContainer}>
-                        <TouchableOpacity 
-                            style={[styles.button, styles.cancelButton]} 
-                            onPress={onClose}
-                        >
-                            <Text style={styles.buttonText}>Cancel</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                            style={[styles.button, styles.saveButton]} 
-                            onPress={handleSave}
-                        >
-                            <Text style={styles.buttonText}>Save Changes</Text>
-                        </TouchableOpacity>
+                        <View style={styles.nameSection}>
+                            {isEditing ? (
+                                <TextInput
+                                    style={[
+                                        styles.input,
+                                        { 
+                                            color: theme.text,
+                                        }
+                                    ]}
+                                    value={name}
+                                    onChangeText={setName}
+                                    placeholder={currentName}
+                                    autoFocus={true}
+                                />
+                            ) : (
+                                <View style={styles.nameContainer}>
+                                    <Text style={[styles.nameText, { color: theme.text }]}>{name}</Text>
+                                    <TouchableOpacity 
+                                        onPress={() => setIsEditing(true)}
+                                        style={[styles.editButton, { color: theme.text }]}
+                                    >
+                                        <Feather name="edit-3" size={16} color="#666" style={{ bottom: -3 }} />
+                                    </TouchableOpacity>
+                                </View>
+                            )}
+                        </View>
+
+                        <View style={styles.buttonContainer}>
+                            <TouchableOpacity 
+                                style={[styles.button, styles.cancelButton]} 
+                                onPress={onClose}
+                            >
+                                <Text style={styles.buttonText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                                style={[styles.button, styles.saveButton]} 
+                                onPress={handleSave}
+                            >
+                                <Text style={styles.buttonText}>Save Changes</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
-            </View>
+            </SafeAreaView>
         </Modal>
     );
 }
 
 const createStyles = (theme) => StyleSheet.create({
-    modalOverlay: {
+    safeArea: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalOverlay: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },

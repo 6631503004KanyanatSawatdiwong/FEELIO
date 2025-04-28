@@ -235,23 +235,45 @@ export default function ProfileScreen() {
     };
 
     return (
-        <View style={styles.container}>
-            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
-            <View style={styles.headerContainer}>
-                <View style={[
-                    styles.iconContainer,
-                    isDarkMode && {
-                        shadowColor: undefined,
-                        shadowOffset: undefined,
-                        shadowOpacity: 0,
-                        shadowRadius: 0,
-                        elevation: 0,
-                    }
-                ]}>
+        <View style={[styles.safeArea, { backgroundColor: theme.background }]}>
+            <StatusBar 
+                backgroundColor={theme.background}
+                barStyle={isDarkMode ? "light-content" : "dark-content"} 
+            />
+            <View style={[styles.container, { backgroundColor: theme.background }]}>
+                <View style={styles.headerContainer}>
+                    <View style={[
+                        styles.iconContainer,
+                        isDarkMode && {
+                            shadowColor: undefined,
+                            shadowOffset: undefined,
+                            shadowOpacity: 0,
+                            shadowRadius: 0,
+                            elevation: 0,
+                        }
+                    ]}>
+                        <TouchableOpacity 
+                            style={[
+                                styles.icon,
+                                { backgroundColor: theme.card },
+                                isDarkMode && {
+                                    shadowColor: undefined,
+                                    shadowOffset: undefined,
+                                    shadowOpacity: 0,
+                                    shadowRadius: 0,
+                                    elevation: 0,
+                                }
+                            ]} 
+                            onPress={() => navigation.goBack()}
+                        >
+                            <Octicons name="chevron-left" size={28} color={theme.text} />
+                        </TouchableOpacity>
+                    </View>
+
                     <TouchableOpacity 
                         style={[
-                            styles.icon,
-                            { backgroundColor: theme.card },
+                            styles.profileButton,
+                            { backgroundColor: theme.navbar },
                             isDarkMode && {
                                 shadowColor: undefined,
                                 shadowOffset: undefined,
@@ -260,16 +282,26 @@ export default function ProfileScreen() {
                                 elevation: 0,
                             }
                         ]} 
-                        onPress={() => navigation.goBack()}
+                        onPress={() => setIsModalVisible(true)}
                     >
-                        <Octicons name="chevron-left" size={28} color={theme.text} />
+                        <View style={styles.profileImageContainer}>
+                            <Image 
+                                source={userData?.avatarId !== undefined ? avatars[userData.avatarId].image : avatars[0].image} 
+                                style={styles.profileImage} 
+                            />
+                        </View>
+                        <Text style={styles.nameText}>{userData?.name || 'User'}</Text>
+                        <Feather name="edit-3" size={14} color={theme.secondary} />
                     </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity 
-                    style={[
-                        styles.profileButton,
-                        { backgroundColor: theme.navbar },
+                <View style={styles.monthContainer}>
+                    <Text style={[styles.monthText, { color: theme.text }]}>{selectedDate.format('MMMM YYYY')}</Text>
+                </View>
+
+                <View style={styles.circleContainer}>
+                    <View style={[
+                        styles.outerCircle,
                         isDarkMode && {
                             shadowColor: undefined,
                             shadowOffset: undefined,
@@ -277,91 +309,66 @@ export default function ProfileScreen() {
                             shadowRadius: 0,
                             elevation: 0,
                         }
-                    ]} 
-                    onPress={() => setIsModalVisible(true)}
-                >
-                    <View style={styles.profileImageContainer}>
-                        <Image 
-                            source={userData?.avatarId !== undefined ? avatars[userData.avatarId].image : avatars[0].image} 
-                            style={styles.profileImage} 
-                        />
-                    </View>
-                    <Text style={styles.nameText}>{userData?.name || 'User'}</Text>
-                    <Feather name="edit-3" size={14} color={theme.secondary} />
-                </TouchableOpacity>
-            </View>
-
-            <View style={styles.monthContainer}>
-                <Text style={[styles.monthText, { color: theme.text }]}>{selectedDate.format('MMMM YYYY')}</Text>
-            </View>
-
-            <View style={styles.circleContainer}>
-                <View style={[
-                    styles.outerCircle,
-                    isDarkMode && {
-                        shadowColor: undefined,
-                        shadowOffset: undefined,
-                        shadowOpacity: 0,
-                        shadowRadius: 0,
-                        elevation: 0,
-                    }
-                ]}>
-                    <CircularProgress stats={moodStats} size={width * 0.9} />
-                    <View style={styles.innerCircleContent}>
-                        <Text style={[styles.percentageText, { color: theme.text }]}>{totalMoods}</Text>
-                        <Text style={[styles.totalText, { color: theme.secondary }]}>Total Moods</Text>
+                    ]}>
+                        <CircularProgress stats={moodStats} size={width * 0.9} />
+                        <View style={styles.innerCircleContent}>
+                            <Text style={[styles.percentageText, { color: theme.text }]}>{totalMoods}</Text>
+                            <Text style={[styles.totalText, { color: theme.secondary }]}>Total Moods</Text>
+                        </View>
                     </View>
                 </View>
-            </View>
 
-            <View style={styles.statsContainer}>
-                {Array.from({ length: Math.ceil(emotions.length / 2) }).map((_, rowIndex) => (
-                    <View key={rowIndex} style={styles.statRowContainer}>
-                        {emotions.slice(rowIndex * 2, rowIndex * 2 + 2).map(emotion => (
-                            <View 
-                                key={emotion.id} 
-                                style={[
-                                    styles.statRow,
-                                    { backgroundColor: theme.card },
-                                    isDarkMode && {
-                                        shadowColor: undefined,
-                                        shadowOffset: undefined,
-                                        shadowOpacity: 0,
-                                        shadowRadius: 0,
-                                        elevation: 0,
-                                    }
-                                ]}
-                            >
-                                <Image source={emotion.image} style={styles.statIcon} />
-                                <Text style={[styles.statText, { color: theme.text }]}>{emotion.name}</Text>
-                                <Text style={[
-                                    styles.statPercentage,
-                                    { color: emotionColors[emotion.name] }
-                                ]}>{moodStats[emotion.name] || 0}%</Text>
-                            </View>
-                        ))}
-                    </View>
-                ))}
-            </View>
+                <View style={styles.statsContainer}>
+                    {Array.from({ length: Math.ceil(emotions.length / 2) }).map((_, rowIndex) => (
+                        <View key={rowIndex} style={styles.statRowContainer}>
+                            {emotions.slice(rowIndex * 2, rowIndex * 2 + 2).map(emotion => (
+                                <View 
+                                    key={emotion.id} 
+                                    style={[
+                                        styles.statRow,
+                                        { backgroundColor: theme.card },
+                                        isDarkMode && {
+                                            shadowColor: undefined,
+                                            shadowOffset: undefined,
+                                            shadowOpacity: 0,
+                                            shadowRadius: 0,
+                                            elevation: 0,
+                                        }
+                                    ]}
+                                >
+                                    <Image source={emotion.image} style={styles.statIcon} />
+                                    <Text style={[styles.statText, { color: theme.text }]}>{emotion.name}</Text>
+                                    <Text style={[
+                                        styles.statPercentage,
+                                        { color: emotionColors[emotion.name] }
+                                    ]}>{moodStats[emotion.name] || 0}%</Text>
+                                </View>
+                            ))}
+                        </View>
+                    ))}
+                </View>
 
-            {/* Modals */}
-            <ChangeNameModal
-                visible={isModalVisible}
-                onClose={() => setIsModalVisible(false)}
-                onSave={handleSaveName}
-                currentName={userData?.name}
-                currentAvatarId={userData?.avatarId || '0'}
-            />
-            
+                {/* Modals */}
+                <ChangeNameModal
+                    visible={isModalVisible}
+                    onClose={() => setIsModalVisible(false)}
+                    onSave={handleSaveName}
+                    currentName={userData?.name}
+                    currentAvatarId={userData?.avatarId || '0'}
+                />
+            </View>
         </View>
     )
 };
 
 const createStyles = (theme) => StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: theme.background
+    },
     container: {
         flex: 1,
-        backgroundColor: theme.background,
-        padding: 20
+        padding: 20,
     },
     iconContainer: {
         justifyContent: 'center',

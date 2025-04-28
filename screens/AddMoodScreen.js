@@ -143,91 +143,15 @@ export default function AddMoodScreen() {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
-            <TouchableOpacity 
-                style={[
-                    styles.profileButton,
-                    { backgroundColor: theme.navbar },
-                    isDarkMode && {
-                        shadowColor: undefined,
-                        shadowOffset: undefined,
-                        shadowOpacity: 0,
-                        shadowRadius: 0,
-                        elevation: 0,
-                    }
-                ]}
-                onPress={() => navigation.navigate('ProfileScreen')}
-            >
-                <View style={styles.profileImageContainer}>
-                    <Image 
-                        source={userData?.avatarId !== undefined ? avatars[userData.avatarId].image : avatars[0].image} 
-                        style={styles.profileImage} 
-                    />
-                </View>
-                <Text style={styles.nameText}>{userData?.name || 'User'}</Text>
-            </TouchableOpacity>
-
-            <Text style={[styles.questionText, { color: theme.text }]}>
-                {isToday ? "How are you feeling today?" : "What was your mood this day?"}
-            </Text>
-
-            {existingMood && (
-                <Text style={[styles.existingMoodText, { color: theme.secondary }]}>
-                    Current mood: {existingMood}
-                </Text>
-            )}
-
-            <View style={styles.emotionsContainer}>
-                {emotions.map((emotion, index) => {
-                    const position = getEmotionPosition(index, emotions.length);
-                    return (
-                        <TouchableOpacity
-                            key={emotion.id}
-                            style={[
-                                styles.emotionButton,
-                                { left: position.left, top: position.top },
-                                selectedEmotion?.id === emotion.id && styles.selectedEmotion
-                            ]}
-                            onPress={() => handleEmotionPress(emotion)}
-                        >
-                            {selectedEmotion?.id === emotion.id && (
-                                <Image 
-                                    source={templateImage} 
-                                    style={[
-                                        styles.templateBorder,
-                                        { tintColor: isDarkMode ? '#fff' : emotionColors[emotion.name] }
-                                    ]} 
-                                />
-                            )}
-                            <Image 
-                                source={emotion.image} 
-                                style={[
-                                    styles.emotionImage,
-                                    selectedEmotion?.id === emotion.id && styles.selectedEmotionImage
-                                ]} 
-                            />
-                            {selectedEmotion?.id === emotion.id && (
-                                <Text style={[styles.emotionName, { color: theme.text }]}>{emotion.name}</Text>
-                            )}
-                        </TouchableOpacity>
-                    );
-                })}
-            </View>
-
-            <View style={[
-                styles.iconContainer,
-                isDarkMode && {
-                    shadowColor: undefined,
-                    shadowOffset: undefined,
-                    shadowOpacity: 0,
-                    shadowRadius: 0,
-                    elevation: 0,
-                }
-            ]}>
+        <View style={[styles.safeArea, { backgroundColor: theme.background }]}>
+            <StatusBar 
+                backgroundColor={theme.background}
+                barStyle={isDarkMode ? "light-content" : "dark-content"} 
+            />
+            <View style={[styles.container, { backgroundColor: theme.background }]}>
                 <TouchableOpacity 
                     style={[
-                        styles.icon, 
+                        styles.profileButton,
                         { backgroundColor: theme.navbar },
                         isDarkMode && {
                             shadowColor: undefined,
@@ -236,14 +160,67 @@ export default function AddMoodScreen() {
                             shadowRadius: 0,
                             elevation: 0,
                         }
-                    ]} 
-                    onPress={() => navigation.replace('HomeScreen')}
+                    ]}
+                    onPress={() => navigation.navigate('ProfileScreen')}
                 >
-                    <Octicons name="home" size={28} color={theme.primary} />
+                    <View style={styles.profileImageContainer}>
+                        <Image 
+                            source={userData?.avatarId !== undefined ? avatars[userData.avatarId].image : avatars[0].image} 
+                            style={styles.profileImage} 
+                        />
+                    </View>
+                    <Text style={styles.nameText}>{userData?.name || 'User'}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[
-                    styles.activeIcon, 
-                    { backgroundColor: theme.primary },
+
+                <Text style={[styles.questionText, { color: theme.text }]}>
+                    {isToday ? "How are you feeling today?" : "What was your mood this day?"}
+                </Text>
+
+                {existingMood && (
+                    <Text style={[styles.existingMoodText, { color: theme.secondary }]}>
+                        Current mood: {existingMood}
+                    </Text>
+                )}
+
+                <View style={styles.emotionsContainer}>
+                    {emotions.map((emotion, index) => {
+                        const position = getEmotionPosition(index, emotions.length);
+                        return (
+                            <TouchableOpacity
+                                key={emotion.id}
+                                style={[
+                                    styles.emotionButton,
+                                    { left: position.left, top: position.top },
+                                    selectedEmotion?.id === emotion.id && styles.selectedEmotion
+                                ]}
+                                onPress={() => handleEmotionPress(emotion)}
+                            >
+                                {selectedEmotion?.id === emotion.id && (
+                                    <Image 
+                                        source={templateImage} 
+                                        style={[
+                                            styles.templateBorder,
+                                            { tintColor: isDarkMode ? '#fff' : emotionColors[emotion.name] }
+                                        ]} 
+                                    />
+                                )}
+                                <Image 
+                                    source={emotion.image} 
+                                    style={[
+                                        styles.emotionImage,
+                                        selectedEmotion?.id === emotion.id && styles.selectedEmotionImage
+                                    ]} 
+                                />
+                                {selectedEmotion?.id === emotion.id && (
+                                    <Text style={[styles.emotionName, { color: theme.text }]}>{emotion.name}</Text>
+                                )}
+                            </TouchableOpacity>
+                        );
+                    })}
+                </View>
+
+                <View style={[
+                    styles.iconContainer,
                     isDarkMode && {
                         shadowColor: undefined,
                         shadowOffset: undefined,
@@ -252,12 +229,25 @@ export default function AddMoodScreen() {
                         elevation: 0,
                     }
                 ]}>
-                    <FontAwesome name="plus" size={28} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    style={[
-                        styles.icon, 
-                        { backgroundColor: theme.navbar },
+                    <TouchableOpacity 
+                        style={[
+                            styles.icon, 
+                            { backgroundColor: theme.navbar },
+                            isDarkMode && {
+                                shadowColor: undefined,
+                                shadowOffset: undefined,
+                                shadowOpacity: 0,
+                                shadowRadius: 0,
+                                elevation: 0,
+                            }
+                        ]} 
+                        onPress={() => navigation.replace('HomeScreen')}
+                    >
+                        <Octicons name="home" size={28} color={theme.primary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[
+                        styles.activeIcon, 
+                        { backgroundColor: theme.primary },
                         isDarkMode && {
                             shadowColor: undefined,
                             shadowOffset: undefined,
@@ -265,20 +255,38 @@ export default function AddMoodScreen() {
                             shadowRadius: 0,
                             elevation: 0,
                         }
-                    ]} 
-                    onPress={() => navigation.replace('SettingsScreen')}
-                >
-                    <Ionicons name="settings" size={28} color={theme.primary} />
-                </TouchableOpacity>
+                    ]}>
+                        <FontAwesome name="plus" size={28} color="white" />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={[
+                            styles.icon, 
+                            { backgroundColor: theme.navbar },
+                            isDarkMode && {
+                                shadowColor: undefined,
+                                shadowOffset: undefined,
+                                shadowOpacity: 0,
+                                shadowRadius: 0,
+                                elevation: 0,
+                            }
+                        ]} 
+                        onPress={() => navigation.replace('SettingsScreen')}
+                    >
+                        <Ionicons name="settings" size={28} color={theme.primary} />
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
     );
 }
 
 const createStyles = (theme) => StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: theme.background
+    },
     container: {
         flex: 1,
-        backgroundColor: theme.background,
     },
     emotionsContainer: {
         flex: 1,

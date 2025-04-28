@@ -179,47 +179,75 @@ export default function SettingsScreen() {
     const avatarImage = avatars[userData.avatarId || 0].image;
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
-            <Text style={styles.settingsText}>Settings</Text>
+        <View style={[styles.safeArea, { backgroundColor: theme.background }]}>
+            <StatusBar 
+                backgroundColor={theme.background}
+                barStyle={isDarkMode ? "light-content" : "dark-content"} 
+            />
+            <View style={[styles.container, { backgroundColor: theme.background }]}>
+                <Text style={styles.settingsText}>Settings</Text>
 
-            {/* Profile Button */}
-            <TouchableOpacity 
-                style={[
-                    styles.profileButton,
-                    { 
-                        backgroundColor: theme.card,
-                        borderColor: theme.border 
-                    },
-                    isDarkMode && {
-                        shadowColor: undefined,
-                        shadowOffset: undefined,
-                        shadowOpacity: 0,
-                        shadowRadius: 0,
-                        elevation: 0,
-                    }
-                ]} 
-                onPress={() => setIsModalVisible(true)}
-            >
-                <View style={styles.imageAndName}>
-                    <View style={styles.profileImageContainer}>
-                        <Image 
-                            source={userData?.avatarId !== undefined ? avatars[userData.avatarId].image : avatars[0].image} 
-                            style={styles.profileImage} 
-                        />
+                {/* Profile Button */}
+                <TouchableOpacity 
+                    style={[
+                        styles.profileButton,
+                        { 
+                            backgroundColor: theme.card,
+                            borderColor: theme.border 
+                        },
+                        isDarkMode && {
+                            shadowColor: undefined,
+                            shadowOffset: undefined,
+                            shadowOpacity: 0,
+                            shadowRadius: 0,
+                            elevation: 0,
+                        }
+                    ]} 
+                    onPress={() => setIsModalVisible(true)}
+                >
+                    <View style={styles.imageAndName}>
+                        <View style={styles.profileImageContainer}>
+                            <Image 
+                                source={userData?.avatarId !== undefined ? avatars[userData.avatarId].image : avatars[0].image} 
+                                style={styles.profileImage} 
+                            />
+                        </View>
+                        <Text style={[styles.nameText, { color: theme.text }]}>{userData?.name || 'User'}</Text>
                     </View>
-                    <Text style={[styles.nameText, { color: theme.text }]}>{userData?.name || 'User'}</Text>
-                </View>
-                <View style={styles.iconAndText}>
-                    <Text style={styles.subText}>Edit Profile</Text>
-                    <Ionicons name="chevron-forward" size={24} color={theme.secondary} />
-                </View>
-            </TouchableOpacity>
+                    <View style={styles.iconAndText}>
+                        <Text style={styles.subText}>Edit Profile</Text>
+                        <Ionicons name="chevron-forward" size={24} color={theme.secondary} />
+                    </View>
+                </TouchableOpacity>
 
-            {/* Dark Mode Button */}
-            <View 
-                style={[
-                    styles.profileButton,
+                {/* Dark Mode Button */}
+                <View 
+                    style={[
+                        styles.profileButton,
+                        { backgroundColor: theme.card },
+                        isDarkMode && {
+                            shadowColor: undefined,
+                            shadowOffset: undefined,
+                            shadowOpacity: 0,
+                            shadowRadius: 0,
+                            elevation: 0,
+                        }
+                    ]}
+
+                    onPress={toggleTheme}>
+                        <Text style={styles.otherText}>Dark Mode</Text>
+                        <Switch
+                            value={isDarkMode}
+                            onValueChange={toggleTheme}
+                            trackColor={{ false: "#767577", true: "#A081C3" }}
+                            thumbColor={isDarkMode ? "#f4f3f4" : "#f4f3f4"}
+                            style={{ shadowColor: 'black', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 5, elevation: 5 }}
+                        />
+                </View>
+
+                {/* Privacy Policy & Terms of use */}
+                <View style={[
+                    styles.privacyTermsContainer,
                     { backgroundColor: theme.card },
                     isDarkMode && {
                         shadowColor: undefined,
@@ -228,78 +256,45 @@ export default function SettingsScreen() {
                         shadowRadius: 0,
                         elevation: 0,
                     }
-                ]}
+                ]}>
+                    <TouchableOpacity 
+                        style={[
+                            styles.privacyContainer, 
+                            { backgroundColor: theme.subcard },
+                            isDarkMode && {
+                                shadowColor: undefined,
+                                shadowOffset: undefined,
+                                shadowOpacity: 0,
+                                shadowRadius: 0,
+                                elevation: 0,
+                            }
+                        ]}
+                        onPress={() => setIsPrivacyModalVisible(true)}
+                    >
+                        <Text style={styles.otherText}>Privacy Policy</Text>
+                        <Ionicons name="chevron-forward" size={20} color={theme.secondary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={[styles.privacyContainer, { backgroundColor: theme.subcard }, 
+                            isDarkMode && {
+                                shadowColor: undefined,
+                                shadowOffset: undefined,
+                                shadowOpacity: 0,
+                                shadowRadius: 0,
+                                elevation: 0,
+                            }
+                        ]}
+                        onPress={() => setIsTermsModalVisible(true)}
+                    >
+                        <Text style={styles.otherText}>Terms of use</Text>
+                        <Ionicons name="chevron-forward" size={20} color={theme.secondary} />
+                    </TouchableOpacity>
+                </View>
 
-                onPress={toggleTheme}>
-                    <Text style={styles.otherText}>Dark Mode</Text>
-                    <Switch
-                        value={isDarkMode}
-                        onValueChange={toggleTheme}
-                        trackColor={{ false: "#767577", true: "#A081C3" }}
-                        thumbColor={isDarkMode ? "#f4f3f4" : "#f4f3f4"}
-                        style={{ shadowColor: 'black', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 5, elevation: 5 }}
-                    />
-            </View>
-
-            {/* Privacy Policy & Terms of use */}
-            <View style={[
-                styles.privacyTermsContainer,
-                { backgroundColor: theme.card },
-                isDarkMode && {
-                    shadowColor: undefined,
-                    shadowOffset: undefined,
-                    shadowOpacity: 0,
-                    shadowRadius: 0,
-                    elevation: 0,
-                }
-            ]}>
-                <TouchableOpacity 
-                    style={[
-                        styles.privacyContainer, 
-                        { backgroundColor: theme.subcard },
-                        isDarkMode && {
-                            shadowColor: undefined,
-                            shadowOffset: undefined,
-                            shadowOpacity: 0,
-                            shadowRadius: 0,
-                            elevation: 0,
-                        }
-                    ]}
-                    onPress={() => setIsPrivacyModalVisible(true)}
-                >
-                    <Text style={styles.otherText}>Privacy Policy</Text>
-                    <Ionicons name="chevron-forward" size={20} color={theme.secondary} />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    style={[styles.privacyContainer, { backgroundColor: theme.subcard }, 
-                        isDarkMode && {
-                            shadowColor: undefined,
-                            shadowOffset: undefined,
-                            shadowOpacity: 0,
-                            shadowRadius: 0,
-                            elevation: 0,
-                        }
-                    ]}
-                    onPress={() => setIsTermsModalVisible(true)}
-                >
-                    <Text style={styles.otherText}>Terms of use</Text>
-                    <Ionicons name="chevron-forward" size={20} color={theme.secondary} />
-                </TouchableOpacity>
-            </View>
-
-            {/* Change password & Delete account */}
-            <View style={[
-                styles.privacyTermsContainer,
-                { backgroundColor: theme.card },
-                isDarkMode && {
-                    shadowColor: undefined,
-                    shadowOffset: undefined,
-                    shadowOpacity: 0,
-                    shadowRadius: 0,
-                    elevation: 0,
-                }
-            ]}>
-                <TouchableOpacity style={[styles.privacyContainer, { backgroundColor: theme.subcard },
+                {/* Change password & Delete account */}
+                <View style={[
+                    styles.privacyTermsContainer,
+                    { backgroundColor: theme.card },
                     isDarkMode && {
                         shadowColor: undefined,
                         shadowOffset: undefined,
@@ -307,11 +302,8 @@ export default function SettingsScreen() {
                         shadowRadius: 0,
                         elevation: 0,
                     }
-                ]} onPress={handleLogout}>
-                    <Text style={styles.otherText}>Logout</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    style={[styles.privacyContainer, { backgroundColor: theme.subcard }, 
+                ]}>
+                    <TouchableOpacity style={[styles.privacyContainer, { backgroundColor: theme.subcard },
                         isDarkMode && {
                             shadowColor: undefined,
                             shadowOffset: undefined,
@@ -319,121 +311,137 @@ export default function SettingsScreen() {
                             shadowRadius: 0,
                             elevation: 0,
                         }
-                    ]} 
-                    onPress={() => setIsPasswordModalVisible(true)}
-                >
-                    <Text style={styles.otherText}>Change Password</Text>
-                    <Ionicons name="chevron-forward" size={20} color={theme.secondary} />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    style={[styles.privacyContainer, { backgroundColor: theme.subcard },
-                        isDarkMode && {
-                            shadowColor: undefined,
-                            shadowOffset: undefined,
-                            shadowOpacity: 0,
-                            shadowRadius: 0,
-                            elevation: 0,
-                        }
-                    ]}
-                    onPress={handleDeleteAccount}
-                >
-                    <Text style={styles.deleteAccountText}>Delete Account</Text>
-                    <Ionicons name="chevron-forward" size={20} color={theme.secondary} />
-                </TouchableOpacity>
-            </View>
+                    ]} onPress={handleLogout}>
+                        <Text style={styles.otherText}>Logout</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={[styles.privacyContainer, { backgroundColor: theme.subcard }, 
+                            isDarkMode && {
+                                shadowColor: undefined,
+                                shadowOffset: undefined,
+                                shadowOpacity: 0,
+                                shadowRadius: 0,
+                                elevation: 0,
+                            }
+                        ]} 
+                        onPress={() => setIsPasswordModalVisible(true)}
+                    >
+                        <Text style={styles.otherText}>Change Password</Text>
+                        <Ionicons name="chevron-forward" size={20} color={theme.secondary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={[styles.privacyContainer, { backgroundColor: theme.subcard },
+                            isDarkMode && {
+                                shadowColor: undefined,
+                                shadowOffset: undefined,
+                                shadowOpacity: 0,
+                                shadowRadius: 0,
+                                elevation: 0,
+                            }
+                        ]}
+                        onPress={handleDeleteAccount}
+                    >
+                        <Text style={styles.deleteAccountText}>Delete Account</Text>
+                        <Ionicons name="chevron-forward" size={20} color={theme.secondary} />
+                    </TouchableOpacity>
+                </View>
 
-            {/* Bottom Icons */}
-            <View style={[
-                styles.iconContainer,
-                isDarkMode && {
-                    shadowColor: undefined,
-                    shadowOffset: undefined,
-                    shadowOpacity: 0,
-                    shadowRadius: 0,
-                    elevation: 0,
-                }
-            ]}>
-                <TouchableOpacity 
-                    style={[
-                        styles.icon,
-                        { backgroundColor: theme.navbar },
-                        isDarkMode && {
-                            shadowColor: undefined,
-                            shadowOffset: undefined,
-                            shadowOpacity: 0,
-                            shadowRadius: 0,
-                            elevation: 0,
-                        }
-                    ]} 
-                    onPress={() => navigation.replace('HomeScreen')}
-                >
-                    <Octicons name="home" size={28} color={theme.primary} />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    style={[
-                        styles.icon,
-                        { backgroundColor: theme.navbar },
-                        isDarkMode && {
-                            shadowColor: undefined,
-                            shadowOffset: undefined,
-                            shadowOpacity: 0,
-                            shadowRadius: 0,
-                            elevation: 0,
-                        }
-                    ]}
-                    onPress={() => navigation.navigate('AddMoodScreen')}
-                >
-                    <FontAwesome name="plus" size={28} color={theme.primary} />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    style={[
-                        styles.icon, 
-                        { backgroundColor: theme.primary },
-                        isDarkMode && {
-                            shadowColor: undefined,
-                            shadowOffset: undefined,
-                            shadowOpacity: 0,
-                            shadowRadius: 0,
-                            elevation: 0,
-                        }
-                    ]} 
-                    onPress={() => navigation.replace('SettingsScreen')}
-                >
-                    <Ionicons name="settings" size={28} color="white" />
-                </TouchableOpacity>
-            </View>
+                {/* Bottom Icons */}
+                <View style={[
+                    styles.iconContainer,
+                    isDarkMode && {
+                        shadowColor: undefined,
+                        shadowOffset: undefined,
+                        shadowOpacity: 0,
+                        shadowRadius: 0,
+                        elevation: 0,
+                    }
+                ]}>
+                    <TouchableOpacity 
+                        style={[
+                            styles.icon,
+                            { backgroundColor: theme.navbar },
+                            isDarkMode && {
+                                shadowColor: undefined,
+                                shadowOffset: undefined,
+                                shadowOpacity: 0,
+                                shadowRadius: 0,
+                                elevation: 0,
+                            }
+                        ]} 
+                        onPress={() => navigation.replace('HomeScreen')}
+                    >
+                        <Octicons name="home" size={28} color={theme.primary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={[
+                            styles.icon,
+                            { backgroundColor: theme.navbar },
+                            isDarkMode && {
+                                shadowColor: undefined,
+                                shadowOffset: undefined,
+                                shadowOpacity: 0,
+                                shadowRadius: 0,
+                                elevation: 0,
+                            }
+                        ]}
+                        onPress={() => navigation.navigate('AddMoodScreen')}
+                    >
+                        <FontAwesome name="plus" size={28} color={theme.primary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={[
+                            styles.icon, 
+                            { backgroundColor: theme.primary },
+                            isDarkMode && {
+                                shadowColor: undefined,
+                                shadowOffset: undefined,
+                                shadowOpacity: 0,
+                                shadowRadius: 0,
+                                elevation: 0,
+                            }
+                        ]} 
+                        onPress={() => navigation.replace('SettingsScreen')}
+                    >
+                        <Ionicons name="settings" size={28} color="white" />
+                    </TouchableOpacity>
+                </View>
 
-            {/* Modals */}
-            <ChangeNameModal
-                visible={isModalVisible}
-                onClose={() => setIsModalVisible(false)}
-                onSave={handleSaveName}
-                currentName={userData?.name}
-                currentAvatarId={userData?.avatarId || '0'}
-            />
-            <ChangePasswordModal
-                visible={isPasswordModalVisible}
-                onClose={() => setIsPasswordModalVisible(false)}
-            />
-            <PrivacyPolicyModal
-                visible={isPrivacyModalVisible}
-                onClose={() => setIsPrivacyModalVisible(false)}
-            />
-            <TermsOfUseModal
-                visible={isTermsModalVisible}
-                onClose={() => setIsTermsModalVisible(false)}
-            />
+                {/* Modals */}
+                <ChangeNameModal
+                    visible={isModalVisible}
+                    onClose={() => setIsModalVisible(false)}
+                    onSave={handleSaveName}
+                    currentName={userData?.name}
+                    currentAvatarId={userData?.avatarId || '0'}
+                />
+                <ChangePasswordModal
+                    visible={isPasswordModalVisible}
+                    onClose={() => setIsPasswordModalVisible(false)}
+                />
+                <PrivacyPolicyModal
+                    visible={isPrivacyModalVisible}
+                    onClose={() => setIsPrivacyModalVisible(false)}
+                />
+                <TermsOfUseModal
+                    visible={isTermsModalVisible}
+                    onClose={() => setIsTermsModalVisible(false)}
+                />
+            </View>
         </View>
     );
 }
 
 const createStyles = (theme) => StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: theme.background
+    },
     container: {
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'center',
-        padding: 20,
-        backgroundColor: theme.background
+        paddingHorizontal: 20,
     },
     nameText: {
         fontSize: 18,
@@ -469,7 +477,7 @@ const createStyles = (theme) => StyleSheet.create({
             },
             android: {
                 paddingHorizontal: 15,
-                paddingVertical: 10,
+                paddingVertical: 15,
             }
         }),
         shadowColor: 'grey',

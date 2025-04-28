@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, Dimensions, Modal } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, Dimensions, Modal, SafeAreaView } from 'react-native';
 import { auth } from '../firebaseConfig';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -40,58 +40,63 @@ export default function ChangePasswordModal({ visible, onClose }) {
             animationType="fade"
             onRequestClose={onClose}
         >
-            <View style={styles.modalOverlay}>
-                <View style={styles.modalContent}>
-                    <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                        <Ionicons name="close" size={24} color={theme.text} />
-                    </TouchableOpacity>
-
-                    <View style={styles.modalHeader}>
-                        <Text style={styles.modalTitle}>Change Password</Text>
-                    </View>
-
-                    <Text style={styles.description}>
-                        Enter your email address to receive a password reset link
-                    </Text>
-
-                    <TextInput
-                        style={[styles.input, { color: theme.text }]}
-                        placeholder="Enter your email"
-                        placeholderTextColor={theme.secondary}
-                        value={email}
-                        onChangeText={setEmail}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        autoFocus={true}
-                    />
-
-                    <View style={styles.buttonContainer}>
-                        <TouchableOpacity 
-                            style={[styles.button, styles.cancelButton]} 
-                            onPress={onClose}
-                        >
-                            <Text style={styles.cancelButtonText}>Cancel</Text>
+            <SafeAreaView style={[styles.safeArea, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
+                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                            <Ionicons name="close" size={24} color={theme.text} />
                         </TouchableOpacity>
-                        <TouchableOpacity 
-                            style={[styles.button, styles.saveButton]} 
-                            onPress={handleResetPassword}
-                            disabled={isLoading}
-                        >
-                            <Text style={styles.saveButtonText}>
-                                {isLoading ? 'Sending...' : 'Send Reset Link'}
-                            </Text>
-                        </TouchableOpacity>
+
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>Change Password</Text>
+                        </View>
+
+                        <Text style={styles.description}>
+                            Enter your email address to receive a password reset link
+                        </Text>
+
+                        <TextInput
+                            style={[styles.input, { color: theme.text }]}
+                            placeholder="Enter your email"
+                            placeholderTextColor={theme.secondary}
+                            value={email}
+                            onChangeText={setEmail}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                            autoFocus={true}
+                        />
+
+                        <View style={styles.buttonContainer}>
+                            <TouchableOpacity 
+                                style={[styles.button, styles.cancelButton]} 
+                                onPress={onClose}
+                            >
+                                <Text style={styles.cancelButtonText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                                style={[styles.button, styles.saveButton]} 
+                                onPress={handleResetPassword}
+                                disabled={isLoading}
+                            >
+                                <Text style={styles.saveButtonText}>
+                                    {isLoading ? 'Sending...' : 'Send Reset Link'}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
-            </View>
+            </SafeAreaView>
         </Modal>
     );
 }
 
 const createStyles = (theme) => StyleSheet.create({
-    modalOverlay: {
+    safeArea: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalOverlay: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },

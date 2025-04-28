@@ -19,10 +19,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/FEELIO-splash.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.ks.sugus.FEELIO"
     },
     "web": {
       "favicon": "./assets/FEELIO-splash.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "54690c00-7714-4ea4-ad79-658e867aad33"
+      }
     }
   }
 }

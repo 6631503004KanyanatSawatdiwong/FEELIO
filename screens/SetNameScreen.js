@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, Text, ImageBackground, TextInput, FlatList, 
-  StyleSheet, Dimensions, Animated, TouchableOpacity, Alert, Image
+  StyleSheet, Dimensions, Animated, TouchableOpacity, Alert, Image, StatusBar
 } from 'react-native';
 import { database, ref, set } from '../firebaseConfig';
 import { auth } from '../firebaseConfig';
@@ -63,84 +63,95 @@ export default function SetNameScreen() {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.textContainer}>
-                <Text style={[styles.text, { color: theme.text }]}>Choose your name</Text>
-            </View>
-
-            <View style={styles.avatarContainer}>
-                <FlatList
-                    data={avatars}
-                    keyExtractor={(item) => item.id}
-                    horizontal
-                    pagingEnabled
-                    showsHorizontalScrollIndicator={false}
-                    onScroll={Animated.event(
-                        [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-                        { useNativeDriver: false }
-                    )}
-                    onMomentumScrollEnd={(event) => {
-                        const index = Math.round(event.nativeEvent.contentOffset.x / width);
-                        setAvatarId(index);
-                    }}
-                    renderItem={({ item, index }) => {
-                        const scale = scrollX.interpolate({
-                            inputRange: [
-                                (index - 1) * width,
-                                index * width,
-                                (index + 1) * width
-                            ],
-                            outputRange: [0.8, 1, 0.8],
-                            extrapolate: 'clamp'
-                        });
-
-                        return (
-                            <View style={styles.characterWrapper}>
-                                <Animated.Image 
-                                    source={item.image} 
-                                    style={[styles.characterImage, { transform: [{ scale }] }]} 
-                                />
-                            </View>
-                        );
-                    }}
-                />
-            </View>
-
-            <TextInput 
-                style={[
-                    styles.input,
-                    { 
-                        backgroundColor: theme.card,
-                        color: theme.text,
-                        borderColor: theme.border
-                    }
-                ]} 
-                placeholder="Enter your name" 
-                placeholderTextColor={theme.secondary}
-                value={username} 
-                onChangeText={setUsername}
+        <View style={[styles.safeArea, { backgroundColor: theme.background }]}>
+            <StatusBar 
+                backgroundColor={theme.background}
+                barStyle={isDarkMode ? "light-content" : "dark-content"} 
             />
+            <View style={[styles.container, { backgroundColor: theme.background }]}>
+                <Text style={[styles.title, { color: theme.text }]}>Welcome to FEELIO!</Text>
+                <View style={styles.textContainer}>
+                    <Text style={[styles.text, { color: theme.text }]}>Choose your name</Text>
+                </View>
 
-            <TouchableOpacity 
-                style={[
-                    styles.startButton,
-                    username.trim() ? {} : styles.disabledButton
-                ]} 
-                onPress={handleStart}
-                disabled={!username.trim()}
-            >
-                <Text style={styles.startButtonText}>START</Text>
-            </TouchableOpacity>
+                <View style={styles.avatarContainer}>
+                    <FlatList
+                        data={avatars}
+                        keyExtractor={(item) => item.id}
+                        horizontal
+                        pagingEnabled
+                        showsHorizontalScrollIndicator={false}
+                        onScroll={Animated.event(
+                            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+                            { useNativeDriver: false }
+                        )}
+                        onMomentumScrollEnd={(event) => {
+                            const index = Math.round(event.nativeEvent.contentOffset.x / width);
+                            setAvatarId(index);
+                        }}
+                        renderItem={({ item, index }) => {
+                            const scale = scrollX.interpolate({
+                                inputRange: [
+                                    (index - 1) * width,
+                                    index * width,
+                                    (index + 1) * width
+                                ],
+                                outputRange: [0.8, 1, 0.8],
+                                extrapolate: 'clamp'
+                            });
+
+                            return (
+                                <View style={styles.characterWrapper}>
+                                    <Animated.Image 
+                                        source={item.image} 
+                                        style={[styles.characterImage, { transform: [{ scale }] }]} 
+                                    />
+                                </View>
+                            );
+                        }}
+                    />
+                </View>
+
+                <TextInput 
+                    style={[
+                        styles.input,
+                        { 
+                            backgroundColor: theme.card,
+                            color: theme.text,
+                            borderColor: theme.border
+                        }
+                    ]} 
+                    placeholder="Enter your name" 
+                    placeholderTextColor={theme.secondary}
+                    value={username} 
+                    onChangeText={setUsername}
+                />
+
+                <TouchableOpacity 
+                    style={[
+                        styles.startButton,
+                        username.trim() ? {} : styles.disabledButton
+                    ]} 
+                    onPress={handleStart}
+                    disabled={!username.trim()}
+                >
+                    <Text style={styles.startButtonText}>START</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }
 
 const createStyles = (theme) => StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: theme.background
+    },
     container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f8f7ea'
+        padding: 20,
     },
     textContainer: {
         alignItems: 'center',
@@ -215,5 +226,10 @@ const createStyles = (theme) => StyleSheet.create({
     avatarContainer: {
         width: '100%',
         height: '50%',
-    }
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 20,
+    },
 });

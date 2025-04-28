@@ -209,103 +209,15 @@ export default function HomeScreen({ navigation }) {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
-            <TouchableOpacity 
-                style={[
-                    styles.profileButton,
-                    { backgroundColor: theme.navbar },
-                    isDarkMode && {
-                        shadowColor: undefined,
-                        shadowOffset: undefined,
-                        shadowOpacity: 0,
-                        shadowRadius: 0,
-                        elevation: 0,
-                    }
-                ]}
-                onPress={() => navigation.navigate('ProfileScreen')}
-            >
-                <View style={styles.profileImageContainer}>
-                    <Image 
-                        source={userData?.avatarId !== undefined ? avatars[userData.avatarId].image : avatars[0].image} 
-                        style={styles.profileImage} 
-                    />
-                </View>
-                <Text style={styles.nameText}>{userData?.name || 'User'}</Text>
-            </TouchableOpacity>
-            
-            <View style={styles.calendarContainer}>
-                <View style={styles.yearNavigation}>
-                    <TouchableOpacity 
-                        onPress={handlePreviousYear}
-                        style={styles.yearButton}
-                    >
-                        <Ionicons name="chevron-back" size={24} color={theme.text} />
-                    </TouchableOpacity>
-                    <Text style={styles.yearText}>{selectedYear}</Text>
-                    <TouchableOpacity 
-                        onPress={handleNextYear}
-                        style={[
-                            styles.yearButton,
-                            selectedYear === moment().year() && styles.disabledYearButton
-                        ]}
-                        disabled={selectedYear === moment().year()}
-                    >
-                        <Ionicons 
-                            name="chevron-forward" 
-                            size={24} 
-                            color={selectedYear === moment().year() ? theme.secondary : theme.text} 
-                        />
-                    </TouchableOpacity>
-                </View>
-
-                <FlatList
-                    data={monthsData}
-                    renderItem={renderMonth}
-                    keyExtractor={(item) => item.format('YYYY-MM')}
-                    horizontal
-                    pagingEnabled
-                    showsHorizontalScrollIndicator={false}
-                    onMomentumScrollEnd={onMonthChange}
-                    ref={flatListRef}
-                    getItemLayout={(data, index) => ({
-                        length: width,
-                        offset: width * index,
-                        index,
-                    })}
-                />
-            </View>
-            
-            {/* bottom navigation bar */}
-            <View style={[
-                styles.iconContainer,
-                isDarkMode && {
-                    shadowColor: undefined,
-                    shadowOffset: undefined,
-                    shadowOpacity: 0,
-                    shadowRadius: 0,
-                    elevation: 0,
-                }
-            ]}>
+        <View style={[styles.safeArea, { backgroundColor: theme.background }]}>
+            <StatusBar 
+                backgroundColor={theme.background}
+                barStyle={isDarkMode ? "light-content" : "dark-content"} 
+            />
+            <View style={[styles.container, { backgroundColor: theme.background }]}>
                 <TouchableOpacity 
                     style={[
-                        styles.activeIcon, 
-                        { backgroundColor: theme.primary },
-                        isDarkMode && {
-                            shadowColor: undefined,
-                            shadowOffset: undefined,
-                            shadowOpacity: 0,
-                            shadowRadius: 0,
-                            elevation: 0,
-                        }
-                    ]} 
-                    onPress={() => navigation.replace('HomeScreen')}
-                >
-                    <Octicons name="home" size={28} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    style={[
-                        styles.icon, 
+                        styles.profileButton,
                         { backgroundColor: theme.navbar },
                         isDarkMode && {
                             shadowColor: undefined,
@@ -315,35 +227,133 @@ export default function HomeScreen({ navigation }) {
                             elevation: 0,
                         }
                     ]}
-                onPress={() => navigation.navigate('AddMoodScreen')}
+                    onPress={() => navigation.navigate('ProfileScreen')}
                 >
-                    <FontAwesome name="plus" size={28} color={theme.primary} />
+                    <View style={styles.profileImageContainer}>
+                        <Image 
+                            source={userData?.avatarId !== undefined ? avatars[userData.avatarId].image : avatars[0].image} 
+                            style={styles.profileImage} 
+                        />
+                    </View>
+                    <Text style={styles.nameText}>{userData?.name || 'User'}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
-                    style={[
-                        styles.icon, 
-                        { backgroundColor: theme.navbar },
-                        isDarkMode && {
-                            shadowColor: undefined,
-                            shadowOffset: undefined,
-                            shadowOpacity: 0,
-                            shadowRadius: 0,
-                            elevation: 0,
-                        }
-                    ]} 
-                    onPress={() => navigation.replace('SettingsScreen')}
-                >
-                    <Ionicons name="settings" size={28} color={theme.primary} />
-                </TouchableOpacity>
+                
+                <View style={styles.calendarContainer}>
+                    <View style={styles.yearNavigation}>
+                        <TouchableOpacity 
+                            onPress={handlePreviousYear}
+                            style={styles.yearButton}
+                        >
+                            <Ionicons name="chevron-back" size={24} color={theme.text} />
+                        </TouchableOpacity>
+                        <Text style={styles.yearText}>{selectedYear}</Text>
+                        <TouchableOpacity 
+                            onPress={handleNextYear}
+                            style={[
+                                styles.yearButton,
+                                selectedYear === moment().year() && styles.disabledYearButton
+                            ]}
+                            disabled={selectedYear === moment().year()}
+                        >
+                            <Ionicons 
+                                name="chevron-forward" 
+                                size={24} 
+                                color={selectedYear === moment().year() ? theme.secondary : theme.text} 
+                            />
+                        </TouchableOpacity>
+                    </View>
+
+                    <FlatList
+                        data={monthsData}
+                        renderItem={renderMonth}
+                        keyExtractor={(item) => item.format('YYYY-MM')}
+                        horizontal
+                        pagingEnabled
+                        showsHorizontalScrollIndicator={false}
+                        onMomentumScrollEnd={onMonthChange}
+                        ref={flatListRef}
+                        getItemLayout={(data, index) => ({
+                            length: width,
+                            offset: width * index,
+                            index,
+                        })}
+                    />
+                </View>
+                
+                {/* bottom navigation bar */}
+                <View style={[
+                    styles.iconContainer,
+                    isDarkMode && {
+                        shadowColor: undefined,
+                        shadowOffset: undefined,
+                        shadowOpacity: 0,
+                        shadowRadius: 0,
+                        elevation: 0,
+                    }
+                ]}>
+                    <TouchableOpacity 
+                        style={[
+                            styles.activeIcon, 
+                            { backgroundColor: theme.primary },
+                            isDarkMode && {
+                                shadowColor: undefined,
+                                shadowOffset: undefined,
+                                shadowOpacity: 0,
+                                shadowRadius: 0,
+                                elevation: 0,
+                            }
+                        ]} 
+                        onPress={() => navigation.replace('HomeScreen')}
+                    >
+                        <Octicons name="home" size={28} color="white" />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={[
+                            styles.icon, 
+                            { backgroundColor: theme.navbar },
+                            isDarkMode && {
+                                shadowColor: undefined,
+                                shadowOffset: undefined,
+                                shadowOpacity: 0,
+                                shadowRadius: 0,
+                                elevation: 0,
+                            }
+                        ]}
+                    onPress={() => navigation.navigate('AddMoodScreen')}
+                    >
+                        <FontAwesome name="plus" size={28} color={theme.primary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={[
+                            styles.icon, 
+                            { backgroundColor: theme.navbar },
+                            isDarkMode && {
+                                shadowColor: undefined,
+                                shadowOffset: undefined,
+                                shadowOpacity: 0,
+                                shadowRadius: 0,
+                                elevation: 0,
+                            }
+                        ]} 
+                        onPress={() => navigation.replace('SettingsScreen')}
+                    >
+                        <Ionicons name="settings" size={28} color={theme.primary} />
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
     );
 }
 
 const createStyles = (theme) => StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: theme.background
+    },
     container: {
         flex: 1,
-        backgroundColor: theme.background,
+        justifyContent: 'flex-start',
+        alignItems: 'center',
     },
     profileButton: {
         position: 'absolute',
